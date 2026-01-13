@@ -21,7 +21,7 @@ export def create [path: string]: nothing -> record<name: string, save: closure,
     {
         name: "report junit"
         results: { create-report }
-        save: { create-report | save $path }
+        save: { |result| create-report | save $path }
     }
 }
 

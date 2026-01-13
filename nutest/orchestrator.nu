@@ -72,7 +72,8 @@ def run-suite [
     } else {
         # This is only triggered on a suite-level failure so not caught by the embedded runner
         # This replicates this suite-level failure down to each test
-        for test in $tests {
+        # Only apply to actual test and ignore types, exclude strategy functions
+        for test in ($tests | where type in ["test", "ignore"]) {
             let template = { timestamp: (date now | format date "%+"), suite: $suite, test: $test.name }
             $template | merge { type: "start", payload: null } | process-event $event_processor
             $template | merge { type: "result", payload: "FAIL" } | process-event $event_processor
@@ -91,7 +92,16 @@ export def create-suite-plan-data [tests: table<name: string, type: string>]: no
 }
 
 def create-test-plan-data [test: record<name: string, type: string>]: nothing -> string {
-    $'{ name: "($test.name)", type: "($test.type)", execute: { ($test.name) } }'
+    # Create a closure that calls the function by name
+    # The name field contains the actual function name (possibly quoted with spaces)
+    # Use to nuon for strings (properly escapes quotes) and construct closure
+    let name_nuon = $test.name | to nuon
+    let type_nuon = $test.type | to nuon
+    # The execute closure should pipe $in to the function
+    # All function types (test, before, after) now receive context via piping
+    # Functions that don't use $in will ignore the piped input
+    # Use eval to ensure the function name is resolved as a function, not external command
+    $"\{ name: ($name_nuon), type: ($type_nuon), execute: \{ \$in | do \{ ($test.name) \} \} \}"
 }
 
 # Need to encode orchestrator errors as the runner would do, and compatible with the store output

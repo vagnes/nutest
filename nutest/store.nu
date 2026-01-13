@@ -26,6 +26,8 @@ export def create [] {
     $db | query db "
         CREATE INDEX idx_suite_test ON nu_test_output (suite, test)
     "
+
+    null  # Explicitly return nothing to satisfy runner validation
 }
 
 # We close the store so tests of this do not open the store multiple times

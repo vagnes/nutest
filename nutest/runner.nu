@@ -61,7 +61,7 @@ def nutest-299792458-execute-suite-internal [
     nutest-299792458-force-result $ignored "SKIP"
 
     try {
-        let strategy = $default_strategy | merge (do $strategy.execute)
+        let strategy = $default_strategy | merge ({} | do $strategy.execute)
         let context_all = { } | nutest-299792458-execute-before $before_all
         $tests | nutest-299792458-execute-tests $strategy $context_all $before_each $after_each
         $context_all | nutest-299792458-execute-after $after_all
@@ -145,7 +145,7 @@ def nutest-299792458-force-error [tests: list, error: record] {
 def nutest-299792458-execute-before [items: list]: record -> record {
     let initial_context = $in
     $items | reduce --fold $initial_context { |it, acc|
-        let next = (do $it.execute) | default { }
+        let next = ($acc | do $it.execute) | default { }
         let type = $next | describe
         if (not ($type | str starts-with "record")) {
             error make { msg: $"The before-each/all command '($it.name)' must return a record or nothing, not '($type)'" }
