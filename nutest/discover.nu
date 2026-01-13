@@ -40,7 +40,7 @@ export def test-suites [
 
     let suite_files = $in
     let result = $suite_files
-        | par-each { discover-suite $in }
+        | each { discover-suite $in }
         | filter-tests $matcher
 
     # The following manifests the data to avoid laziness causing errors to be thrown in the wrong context
