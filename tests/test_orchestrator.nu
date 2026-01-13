@@ -20,10 +20,10 @@ def validate-test-plan [] {
     let plan = create-suite-plan-data $tests
 
     assert equal $plan ('[
-        { name: "test_a", type: "test", execute: { test_a } },
-        { name: "test_b", type: "test", execute: { test_b } },
-        { name: "setup", type: "before-all", execute: { setup } },
-        { name: "cleanup", type: "after-each", execute: { cleanup } }
+        { name: "test_a", type: "test", execute: { $in | do { test_a } } },
+        { name: "test_b", type: "test", execute: { $in | do { test_b } } },
+        { name: "setup", type: "before-all", execute: { $in | do { setup } } },
+        { name: "cleanup", type: "after-each", execute: { $in | do { cleanup } } }
     ]' | trim)
 }
 
