@@ -2,6 +2,9 @@ use std/assert
 use std/testing *
 
 # To avoid collisions with the database, we run each test  in a subshell.
+# Use absolute path for parse-time module path resolution
+const lib_dir = (path self | path dirname)
+const parent_lib_dir = ($lib_dir | path dirname)
 
 @before-each
 def setup []: nothing -> record {
@@ -103,7 +106,7 @@ def "fail option still returns result on passing tests" [] {
         ^$nu.current-exe
             --no-config-file
             --commands ($"
-                use nutest *
+                use '($parent_lib_dir)/nutest/mod.nu' *
                 run-tests --path ($temp) --fail --display table --returns summary
                     | get total" + ' | $"Total: ($in)"'
             )
@@ -130,7 +133,7 @@ def "fail option exit code on failing tests" [] {
         ^$nu.current-exe
             --no-config-file
             --commands $"
-                use nutest *
+                use '($parent_lib_dir)/nutest/mod.nu' *
                 run-tests --path ($temp) --returns table --fail
             "
     ) | complete
@@ -147,7 +150,7 @@ def useful-error-on-non-existent-path [] {
         ^$nu.current-exe
             --no-config-file
             --commands $"
-                use nutest *
+                use '($parent_lib_dir)/nutest/mod.nu' *
                 run-tests --path ($missing_path)
             "
     ) | complete
@@ -308,7 +311,7 @@ def test-run [command: string] {
         ^$nu.current-exe
             --no-config-file
             --commands $"
-                use nutest *
+                use '($parent_lib_dir)/nutest/mod.nu' *
                 ($command) | to nuon
             "
     ) | complete
@@ -325,7 +328,7 @@ def test-run-raw [command: string]: nothing -> string {
         ^$nu.current-exe
             --no-config-file
             --commands $"
-                use nutest *
+                use '($parent_lib_dir)/nutest/mod.nu' *
                 ($command)
             "
     ) | complete

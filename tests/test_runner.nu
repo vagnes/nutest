@@ -579,11 +579,13 @@ def fc-after-all []: record -> nothing {
 
 def test-run [suite: string, plan: list<record>]: nothing -> table<suite, test, type, payload> {
     const this_file = path self
+    let lib_dir = ($this_file | path dirname)
+    let parent_lib_dir = ($lib_dir | path dirname)
     let result = (
         ^$nu.current-exe
             --no-config-file
             --commands $"
-                use nutest/runner.nu *
+                use '($parent_lib_dir)/nutest/runner.nu' *
                 source ($this_file)
                 nutest-299792458-execute-suite { threads: 0 } ($suite) ($plan)
             "
