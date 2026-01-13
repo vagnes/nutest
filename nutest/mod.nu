@@ -16,6 +16,7 @@ export def list-tests [
 
     $suites | each { |suite|
         $suite.tests
+            # Only list actual test and ignore types, exclude strategy functions
             | where { $in.type in ["test", "ignore"] }
             | each { |test| { suite: $suite.name, test: $test.name } }
     } | flatten | sort-by suite test
