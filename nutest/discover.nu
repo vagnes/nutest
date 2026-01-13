@@ -40,7 +40,9 @@ export def test-suites [
 
     let suite_files = $in
     let result = $suite_files
-        | each { discover-suite $in }
+        | reduce --fold [] { |file, acc|
+            $acc | append (discover-suite $file)
+        }
         | filter-tests $matcher
 
     # The following manifests the data to avoid laziness causing errors to be thrown in the wrong context
