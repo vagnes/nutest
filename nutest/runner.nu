@@ -81,7 +81,7 @@ def nutest-299792458-execute-tests [
 
     let tests = $in
 
-    $tests | par-each --threads $strategy.threads { |test|
+    $tests | each { |test|
         # Allow print output to be associated with specific tests by adding name to the environment
         with-env { NU_TEST_NAME: $test.name } {
             nutest-299792458-emit "start"

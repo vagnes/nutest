@@ -22,7 +22,7 @@ export def run-suites [
     strategy: record
 ]: list<record<name: string, path: string, tests: table>> -> nothing {
 
-    $in | par-each --threads $strategy.threads { |suite|
+    $in | each { |suite|
         run-suite $event_processor $strategy $suite.name $suite.path $suite.tests
     }
 }
