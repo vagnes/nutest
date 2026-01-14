@@ -11,10 +11,10 @@ use ../nutest/formatter.nu
 @test
 def validate-test-plan [] {
     let tests = [
-        { name: "test_a", type: "test" }
-        { name: "test_b", type: "test" }
-        { name: "setup", type: "before-all" }
-        { name: "cleanup", type: "after-each" }
+        { name: test_a, type: test }
+        { name: test_b, type: test }
+        { name: setup, type: before-all }
+        { name: cleanup, type: after-each }
     ]
 
     let plan = create-suite-plan-data $tests
@@ -59,10 +59,10 @@ def cleanup-temp-dir [] {
 def run-suite-with-no-tests [] {
     let context = $in
     let temp = $context.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
     touch $test_file
 
-    let suites = [{name: "none", path: $test_file, tests: []}]
+    let suites = [{name: none, path: $test_file, tests: []}]
     let results = $suites | test-run $context
 
     assert equal $results []
@@ -73,15 +73,15 @@ def run-suite-with-passing-test [] {
     let context = $in
     let temp = $context.temp
 
-    let suite = "assert equal 1 1" | create-single-test-suite $temp "passing"
+    let suite = "assert equal 1 1" | create-single-test-suite $temp passing
     let suites = [{ name: $suite.name, path: $suite.path, tests: $suite.tests }]
     let results = $suites | test-run $context
 
     assert equal $results [
         {
-            suite: "passing"
-            test: "passing"
-            result: "PASS"
+            suite: passing
+            test: passing
+            result: PASS
             output: []
         }
     ]
@@ -92,15 +92,15 @@ def run-suite-with-ignored-test [] {
     let context = $in
     let temp = $context.temp
 
-    mut suite = create-suite $temp "ignored"
-    let suites = [ ("assert equal 1 2" | append-test $temp $suite "ignored-test" --type "ignore") ]
+    mut suite = create-suite $temp ignored
+    let suites = [ ("assert equal 1 2" | append-test $temp $suite ignored-test --type ignore) ]
     let results = $suites | test-run $context
 
     assert equal $results [
         {
-            suite: "ignored"
-            test: "ignored-test"
-            result: "SKIP"
+            suite: ignored
+            test: ignored-test
+            result: SKIP
             output: []
         }
     ]
@@ -111,17 +111,17 @@ def run-suite-with-broken-test [] {
     let context = $in
     let temp = $context.temp
 
-    let test_file = $temp | path join "broken-test.nu"
+    let test_file = $temp | path join broken-test.nu
     "def broken-test" | save $test_file # Parse error
-    let tests = [{ name: "broken-test", type: "test" }]
-    let suites = [{ name: "broken", path: $test_file, tests: $tests }]
+    let tests = [{ name: broken-test, type: test }]
+    let suites = [{ name: broken, path: $test_file, tests: $tests }]
     let results = $suites | test-run $context
 
     assert equal ($results | reject output) [
         {
-            suite: "broken"
-            test: "broken-test"
-            result: "FAIL"
+            suite: broken
+            test: broken-test
+            result: FAIL
         }
     ]
 
@@ -135,17 +135,17 @@ def run-suite-with-missing-test [] {
     let context = $in
     let temp = $context.temp
 
-    let test_file = $temp | path join "missing-test.nu"
+    let test_file = $temp | path join missing-test.nu
     touch $test_file
-    let tests = [{ name: "missing-test", type: "test" }]
-    let suites = [{ name: "missing", path: $test_file, tests: $tests }]
+    let tests = [{ name: missing-test, type: test }]
+    let suites = [{ name: missing, path: $test_file, tests: $tests }]
     let results = $suites | test-run $context
 
     assert equal ($results | reject output) [
         {
-            suite: "missing"
-            test: "missing-test"
-            result: "FAIL"
+            suite: missing
+            test: missing-test
+            result: FAIL
         }
     ]
 
@@ -158,15 +158,15 @@ def run-suite-with-failing-test [] {
     let context = $in
     let temp = $context.temp
 
-    let suite = "assert equal 1 2" | create-single-test-suite $temp "failing"
+    let suite = "assert equal 1 2" | create-single-test-suite $temp failing
     let suites = [{ name: $suite.name, path: $suite.path, tests: $suite.tests }]
     let results = $suites | test-run $context
 
     assert equal ($results | reject output) [
         {
-            suite: "failing"
-            test: "failing"
-            result: "FAIL"
+            suite: failing
+            test: failing
+            result: FAIL
         }
     ]
 
@@ -179,21 +179,21 @@ def run-suite-with-multiple-tests [] {
     let context = $in
     let temp = $context.temp
 
-    mut suite = create-suite $temp "multi"
-    let suite = "assert equal 1 1" | append-test $temp $suite "test1"
-    let suite = "assert equal 1 2" | append-test $temp $suite "test2"
+    mut suite = create-suite $temp multi
+    let suite = "assert equal 1 1" | append-test $temp $suite test1
+    let suite = "assert equal 1 2" | append-test $temp $suite test2
     let results = [ $suite ] | test-run $context | reject output
 
     assert equal $results [
         {
-            suite: "multi"
-            test: "test1"
-            result: "PASS"
+            suite: multi
+            test: test1
+            result: PASS
         }
         {
-            suite: "multi"
-            test: "test2"
-            result: "FAIL"
+            suite: multi
+            test: test2
+            result: FAIL
         }
     ]
 }
@@ -203,19 +203,19 @@ def run-multiple-suites [] {
     let context = $in
     let temp = $context.temp
 
-    mut suite1 = create-suite $temp "suite1"
-    let suite1 = "assert equal 1 1" | append-test $temp $suite1 "test1"
-    let suite1 = "assert equal 1 2" | append-test $temp $suite1 "test2"
-    mut suite2 = create-suite $temp "suite2"
-    let suite2 = "assert equal 1 1" | append-test $temp $suite2 "test3"
-    let suite2 = "assert equal 1 2" | append-test $temp $suite2 "test4"
+    mut suite1 = create-suite $temp suite1
+    let suite1 = "assert equal 1 1" | append-test $temp $suite1 test1
+    let suite1 = "assert equal 1 2" | append-test $temp $suite1 test2
+    mut suite2 = create-suite $temp suite2
+    let suite2 = "assert equal 1 1" | append-test $temp $suite2 test3
+    let suite2 = "assert equal 1 2" | append-test $temp $suite2 test4
     let results = [$suite1, $suite2] | test-run $context | reject output
 
     assert equal $results ([
-        { suite: "suite1", test: "test1", result: "PASS" }
-        { suite: "suite1", test: "test2", result: "FAIL" }
-        { suite: "suite2", test: "test3", result: "PASS" }
-        { suite: "suite2", test: "test4", result: "FAIL" }
+        { suite: suite1, test: test1, result: PASS }
+        { suite: suite1, test: test2, result: FAIL }
+        { suite: suite2, test: test3, result: PASS }
+        { suite: suite2, test: test4, result: FAIL }
     ] | sort-by suite test)
 }
 
@@ -224,16 +224,16 @@ def run-test-with-output [] {
     let context = $in
     let temp = $context.temp
 
-    mut suite = create-suite $temp "test-with-output"
-    let suites = [ ("print 1 2; print -e 3 4" | append-test $temp $suite "test") ]
+    mut suite = create-suite $temp test-with-output
+    let suites = [ ("print 1 2; print -e 3 4" | append-test $temp $suite test) ]
     let results = $suites | test-run $context
 
     assert equal $results [
         {
-            suite: "test-with-output"
-            test: "test"
-            result: "PASS"
-            output: [[stream, items]; ["output", [1, 2]], ["error", [3, 4]]]
+            suite: test-with-output
+            test: test
+            result: PASS
+            output: [[stream, items]; [output, [1, 2]], [error, [3, 4]]]
         }
     ]
 }
@@ -243,26 +243,26 @@ def run-before-after-with-output [] {
     let context = $in
     let temp = $context.temp
 
-    mut suite = create-suite $temp "all-with-output"
-    let suite = ("print bao; print -e bao" | append-test $temp $suite "ba" --type "before-all")
-    let suite = ("print beo; print -e beo" | append-test $temp $suite "be" --type "before-each")
-    let suite = ("print to; print -e te" | append-test $temp $suite "test")
-    let suite = ("print aeo; print -e aee" | append-test $temp $suite "ae" --type "after-each")
-    let suite = ("print aao; print -e aae" | append-test $temp $suite "aa" --type "after-all")
+    mut suite = create-suite $temp all-with-output
+    let suite = ("print bao; print -e bao" | append-test $temp $suite ba --type before-all)
+    let suite = ("print beo; print -e beo" | append-test $temp $suite be --type before-each)
+    let suite = ("print to; print -e te" | append-test $temp $suite test)
+    let suite = ("print aeo; print -e aee" | append-test $temp $suite ae --type after-each)
+    let suite = ("print aao; print -e aae" | append-test $temp $suite aa --type after-all)
     let results = [$suite] | test-run $context
 
     assert equal $results [
         {
-            suite: "all-with-output"
-            test: "test"
-            result: "PASS"
+            suite: all-with-output
+            test: test
+            result: PASS
             output: [
                 [stream, items];
-                ["output", ["bao"]], ["error", ["bao"]]
+                [output, [bao]], [error, [bao]]
                 # Since only one before/after all in DB, we cannot guarantee order
-                ["output", ["aao"]], ["error", ["aae"]]
-                ["output", ["beo"]], ["error", ["beo"]]
-                ["output", ["to"]], ["error", ["te"]]
+                [output, [aao]], [error, [aae]]
+                [output, [beo]], [error, [beo]]
+                [output, [to]], [error, ["te"]]
                 ["output", ["aeo"]], ["error", ["aee"]]
             ]
         }

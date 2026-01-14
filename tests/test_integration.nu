@@ -17,8 +17,8 @@ def setup []: nothing -> record {
 }
 
 def setup-tests [temp: string] {
-    let test_file_1 = $temp | path join "test_1.nu"
-    let test_file_2 = $temp | path join "test_2.nu"
+    let test_file_1 = $temp | path join test_1.nu
+    let test_file_2 = $temp | path join test_2.nu
 
     "
     use std/testing *
@@ -47,16 +47,36 @@ def cleanup [] {
 }
 
 @test
-def with-default-table-options [] {
+def with-default-table-options []: any -> any {
     let temp = $in.temp
 
     let results = test-run $"run-tests --path '($temp)' --returns table"
 
     assert equal $results [
-        { suite: test_1, test: test_bar, result: "PASS", output: ["rab"] }
-        { suite: test_1, test: test_foo, result: "PASS", output: ["oof"] }
-        { suite: test_2, test: test_baz, result: "PASS", output: ["zab"] }
-        { suite: test_2, test: test_qux, result: "SKIP", output: [] }
+        {
+    suite: test_1
+    test: test_bar
+    result: PASS
+    output: [rab]
+}
+        {
+    suite: test_1
+    test: test_foo
+    result: PASS
+    output: [oof]
+}
+        {
+    suite: test_2
+    test: test_baz
+    result: PASS
+    output: [zab]
+}
+        {
+    suite: test_2
+    test: test_qux
+    result: SKIP
+    output: []
+}
     ]
 }
 
@@ -77,13 +97,23 @@ def with-different-returns [] {
 @test
 def with-specific-file [] {
     let temp = $in.temp
-    let path = $temp | path join "test_2.nu"
+    let path = $temp | path join test_2.nu
 
     let results = test-run $"run-tests --path '($path)' --returns table"
 
     assert equal $results [
-        { suite: test_2, test: test_baz, result: "PASS", output: ["zab"] }
-        { suite: test_2, test: test_qux, result: "SKIP", output: [] }
+        {
+    suite: test_2
+    test: test_baz
+    result: PASS
+    output: [zab]
+}
+        {
+    suite: test_2
+    test: test_qux
+    result: SKIP
+    output: []
+}
     ]
 }
 
@@ -94,7 +124,12 @@ def with-matching-suite-and-test [] {
     let results = test-run $"run-tests --path '($temp)' --returns table --match-suites _1 --match-tests test_ba[rz]"
 
     assert equal $results [
-        { suite: test_1, test: test_bar, result: "PASS", output: ["rab"] }
+        {
+    suite: test_1
+    test: test_bar
+    result: PASS
+    output: [rab]
+}
     ]
 }
 
@@ -121,7 +156,7 @@ def "fail option still returns result on passing tests" [] {
 @test
 def "fail option exit code on failing tests" [] {
     let temp = $in.temp
-    let test_file_3 = $temp | path join "test_3.nu"
+    let test_file_3 = $temp | path join test_3.nu
     "
     use std/testing *
 
@@ -145,7 +180,7 @@ def "fail option exit code on failing tests" [] {
 
 @test
 def useful-error-on-non-existent-path [] {
-    let missing_path = ["non", "existant", "path"] | path join
+    let missing_path = [non existant path] | path join
     let result = (
         ^$nu.current-exe
             --no-config-file
@@ -163,7 +198,7 @@ def useful-error-on-non-existent-path [] {
 @test
 def with-summary-returns [] {
     let temp = $in.temp
-    let test_file_3 = $temp | path join "test_3.nu"
+    let test_file_3 = $temp | path join test_3.nu
     "
     use std/testing *
 
@@ -194,16 +229,16 @@ def list-tests-as-table [] {
     def test_zat [] { print oof }
     @before-each
     def setup [] { print -e rab }
-    " | save ($temp | path join "test_3.nu")
+    " | save ($temp | path join test_3.nu)
 
     let results = test-run $"list-tests --path ($temp)"
 
     assert equal $results [
-        { suite: test_1, test: test_bar }
-        { suite: test_1, test: test_foo }
-        { suite: test_2, test: test_baz }
-        { suite: test_2, test: test_qux }
-        { suite: test_3, test: test_zat }
+        {suite: test_1, test: test_bar}
+        {suite: test_1, test: test_foo}
+        {suite: test_2, test: test_baz}
+        {suite: test_2, test: test_qux}
+        {suite: test_3, test: test_zat}
     ]
 }
 
@@ -211,7 +246,7 @@ def list-tests-as-table [] {
 @test
 def "terminal display" [] {
     let temp = $in.temp
-    let test_file_3 = $temp | path join "test_3.nu"
+    let test_file_3 = $temp | path join test_3.nu
     "
     use std/testing *
 
@@ -240,7 +275,7 @@ def "terminal display" [] {
 @test
 def "terminal display with rendered error" [] {
     let temp = $in.temp
-    let test_file_3 = $temp | path join "test_3.nu"
+    let test_file_3 = $temp | path join test_3.nu
     "
     use std/testing *
 
@@ -270,7 +305,7 @@ def "terminal display with rendered error" [] {
 @test
 def with-junit-report [] {
     let temp = $in.temp
-    let test_file_3 = $temp | path join "test_3.nu"
+    let test_file_3 = $temp | path join test_3.nu
     "
     use std/testing *
 
@@ -279,7 +314,7 @@ def with-junit-report [] {
     @ignore
     def test_oof [] { }
     " | save $test_file_3
-    let report_path = $temp | path join "report.xml"
+    let report_path = $temp | path join report.xml
 
     test-run-raw $"run-tests --path '($temp)' --report { type: junit, path: '($report_path)' }"
 
@@ -341,5 +376,5 @@ def test-run-raw [command: string]: nothing -> string {
 }
 
 def strip-xml-whitespace []: string -> string {
-    $in | str trim | str replace --all --regex '>[\n\r ]+<' '><'
+    str trim | str replace --all --regex '>[\n\r ]+<' ><
 }

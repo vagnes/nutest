@@ -3,32 +3,32 @@ use std/testing *
 source ../nutest/mod.nu
 
 @test
-def "strategy default" [] {
-    assert equal (null | select-strategy) { threads: 0 }
+def "strategy default" []: any -> any {
+    assert equal (null | select-strategy) {threads: 0}
 }
 
 @test
 def "strategy override" [] {
-    assert equal ({ threads: 1 } | select-strategy) { threads: 1 }
-    assert equal ({ other: "abc" } | select-strategy) { threads: 0, other: "abc" }
+    assert equal ({threads: 1} | select-strategy) {threads: 1}
+    assert equal ({other: abc} | select-strategy) {threads: 0, other: abc}
 }
 
 @test
 def "display default" [] {
     assert equal (null | select-display null | get name) "display terminal"
-    assert equal (null | select-display "nothing" | get name) "display terminal"
+    assert equal (null | select-display null | get name) "display terminal"
 }
 
 @test
 def "display defaults to nothing with result" [] {
-    assert equal (null | select-display "table" | get name) "display nothing"
-    assert equal (null | select-display "summary" | get name) "display nothing"
+    assert equal (null | select-display table | get name) "display nothing"
+    assert equal (null | select-display summary | get name) "display nothing"
 }
 
 @test
 def "display retains specified with result" [] {
-    assert equal ("terminal" | select-display "table" | get name) "display terminal"
-    assert equal ("table" | select-display "summary" | get name) "display table"
+    assert equal ("terminal" | select-display table | get name) "display terminal"
+    assert equal ("table" | select-display summary | get name) "display table"
 }
 
 @test
@@ -50,5 +50,5 @@ def "report default" [] {
 
 @test
 def "report junit" [] {
-    assert equal ({ type: junit, path: "report.xml" } | select-report | get name) "report junit"
+    assert equal ({type: junit, path: report.xml} | select-report | get name) "report junit"
 }

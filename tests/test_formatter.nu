@@ -7,17 +7,29 @@ use ../nutest/theme.nu
 # More comprehensive integration tests can be found in output and error tests.
 
 @test
-def data-and-metadata [] {
+def data-and-metadata []: any -> any {
     let formatter = formatter preserved
 
     assert equal ([] | do $formatter) []
 
     assert equal ([
-        { stream: "output", items: [1, 2, 3]}
-        { stream: "error", items: ["a", "b", "c"]}
+        {
+    stream: output
+    items: [1 2 3]
+}
+        {
+    stream: error
+    items: [a b c]
+}
     ] | do $formatter) [
-        { stream: "output", items: [1, 2, 3]}
-        { stream: "error", items: ["a", "b", "c"]}
+        {
+    stream: output
+    items: [1 2 3]
+}
+        {
+    stream: error
+    items: [a b c]
+}
     ]
 }
 
@@ -28,26 +40,41 @@ def data-only [] {
     assert equal ([] | do $formatter) []
 
     assert equal ([
-        { stream: "output", items: [1, 2, 3]}
-        { stream: "error", items: ["a", "b", "c"]}
+        {
+    stream: output
+    items: [1 2 3]
+}
+        {
+    stream: error
+    items: [a b c]
+}
     ] | do $formatter) [
-        1, 2, 3, "a", "b", "c"
+        1 2 3 a b c
     ]
 }
 
 @test
 def pretty-with-theme-none [] {
-    let formatter = formatter pretty (theme none) "compact"
+    let formatter = formatter pretty (theme none) compact
 
     assert equal ([] | do $formatter) ""
 
     assert equal ([
-        { stream: "error", items: [1, 2, 3]}
+        {
+    stream: error
+    items: [1 2 3]
+}
     ] | do $formatter) "1\n2\n3"
 
     assert equal ([
-        { stream: "output", items: [1, 2, 3]}
-        { stream: "error", items: ["a", "b", "c"]}
+        {
+    stream: output
+    items: [1 2 3]
+}
+        {
+    stream: error
+    items: [a b c]
+}
     ] | do $formatter) (
         "1\n2\n3\na\nb\nc"
     )
@@ -55,13 +82,19 @@ def pretty-with-theme-none [] {
 
 @test
 def pretty-with-theme-standard [] {
-    let formatter = formatter pretty (theme standard) "compact"
+    let formatter = formatter pretty (theme standard) compact
 
     assert equal ([] | do $formatter) ""
 
     assert equal ([
-        { stream: "output", items: [1, 2, 3]}
-        { stream: "error", items: ["a", "b", "c"]}
+        {
+    stream: output
+    items: [1 2 3]
+}
+        {
+    stream: error
+    items: [a b c]
+}
     ] | do $formatter) (
         $"1\n2\n3\n(ansi yellow)a\nb\nc(ansi reset)"
     )
@@ -69,14 +102,14 @@ def pretty-with-theme-standard [] {
 
 @test
 def "pretty with rendered error" [] {
-    let formatter = formatter pretty (theme standard) "rendered"
+    let formatter = formatter pretty (theme standard) rendered
 
     assert equal ([] | do $formatter) ""
 
     assert equal ([
-        { stream: "error", items: [
+        { stream: error, items: [
             {
-                msg: 'placeholder'
+                msg: placeholder
                 json: '[]'
                 rendered: 'a wonderfully decorated error'
             }
