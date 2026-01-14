@@ -28,35 +28,35 @@ def "suite files with none available" [] {
 @test
 def "suite files with specified file path" [] {
     let temp = $in.temp
-    let file = $temp | path join "test_foo.nu"
+    let file = $temp | path join test_foo.nu
     touch $file
 
     let result = $file | discover suite-files
 
     assert equal $result [
-      ($temp | path join "test_foo.nu")
+      ($temp | path join test_foo.nu)
     ]
 }
 
 @test
 def "suite files with default glob" [] {
     let temp = $in.temp
-    mkdir ($temp | path join "subdir")
+    mkdir ($temp | path join subdir)
 
-    touch ($temp | path join "test_foo.nu")
-    touch ($temp | path join "test-foo2.nu")
-    touch ($temp | path join "bar_test.nu")
-    touch ($temp | path join "bar2-test.nu")
-    touch ($temp | path join "subdir" "test_baz.nu")
+    touch ($temp | path join test_foo.nu)
+    touch ($temp | path join test-foo2.nu)
+    touch ($temp | path join bar_test.nu)
+    touch ($temp | path join bar2-test.nu)
+    touch ($temp | path join subdir test_baz.nu)
 
     let result = $temp | discover suite-files | sort
 
     assert equal $result [
-      ($temp | path join "bar2-test.nu" | path expand)
-      ($temp | path join "bar_test.nu" | path expand)
-      ($temp | path join "subdir" "test_baz.nu" | path expand)
-      ($temp | path join "test-foo2.nu" | path expand)
-      ($temp | path join "test_foo.nu" | path expand)
+      ($temp | path join bar2-test.nu | path expand)
+      ($temp | path join bar_test.nu | path expand)
+      ($temp | path join subdir test_baz.nu | path expand)
+      ($temp | path join test-foo2.nu | path expand)
+      ($temp | path join test_foo.nu | path expand)
     ]
 }
 
@@ -64,34 +64,34 @@ def "suite files with default glob" [] {
 def "suite files via specified glob" [] {
     let temp = $in.temp
 
-    touch ($temp | path join "test_foo.nu")
-    touch ($temp | path join "any.nu")
+    touch ($temp | path join test_foo.nu)
+    touch ($temp | path join any.nu)
 
     let result = $temp | discover suite-files --glob "**/*.nu" | sort
 
     assert equal $result [
-      ($temp | path join "any.nu" | path expand)
-      ($temp | path join "test_foo.nu" | path expand)
+      ($temp | path join any.nu | path expand)
+      ($temp | path join test_foo.nu | path expand)
     ]
 }
 
 @test
 def "suite files with matcher" [] {
     let temp = $in.temp
-    mkdir ($temp | path join "subdir")
+    mkdir ($temp | path join subdir)
 
-    touch ($temp | path join "test_foo.nu")
-    touch ($temp | path join "test-foo2.nu")
-    touch ($temp | path join "bar_test.nu")
-    touch ($temp | path join "bar2-test.nu")
-    touch ($temp | path join "subdir" "test_baz.nu")
+    touch ($temp | path join test_foo.nu)
+    touch ($temp | path join test-foo2.nu)
+    touch ($temp | path join bar_test.nu)
+    touch ($temp | path join bar2-test.nu)
+    touch ($temp | path join subdir test_baz.nu)
 
-    let result = $temp | discover suite-files --matcher "ba" | sort
+    let result = $temp | discover suite-files --matcher ba | sort
 
     assert equal $result [
-      ($temp | path join "bar2-test.nu" | path expand)
-      ($temp | path join "bar_test.nu" | path expand)
-      ($temp | path join "subdir" "test_baz.nu" | path expand)
+      ($temp | path join bar2-test.nu | path expand)
+      ($temp | path join bar_test.nu | path expand)
+      ($temp | path join subdir test_baz.nu | path expand)
     ]
 }
 
@@ -108,7 +108,7 @@ def "list tests when no suites" [] {
 @test
 def "tests for all supported test directives" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
 
     "
     use std/testing *
@@ -146,24 +146,24 @@ def "tests for all supported test directives" [] {
     let result = [$test_file] | discover test-suites | sort
 
     assert equal $result [{
-        name: "test"
+        name: test
         path: $test_file
         tests: [
-            { name: "attr-after-all", type: "after-all" }
-            { name: "attr-after-each", type: "after-each" }
-            { name: "attr-before-all", type: "before-all" }
-            { name: "attr-before-each", type: "before-each" }
-            { name: "attr-ignore", type: "ignore" }
+            { name: attr-after-all, type: after-all }
+            { name: attr-after-each, type: after-each }
+            { name: attr-before-all, type: before-all }
+            { name: attr-before-each, type: before-each }
+            { name: attr-ignore, type: ignore }
             # todo no equivalent to @strategy yet
             #{ name: "attr-strategy", type: "strategy" }
-            { name: "attr-test", type: "test" }
-            { name: "desc-after-all", type: "after-all" }
-            { name: "desc-after-each", type: "after-each" }
-            { name: "desc-before-all", type: "before-all" }
-            { name: "desc-before-each", type: "before-each" }
-            { name: "desc-ignore", type: "ignore" }
-            { name: "desc-strategy", type: "strategy" }
-            { name: "desc-test", type: "test" }
+            { name: attr-test, type: test }
+            { name: desc-after-all, type: after-all }
+            { name: desc-after-each, type: after-each }
+            { name: desc-before-all, type: before-all }
+            { name: desc-before-each, type: before-each }
+            { name: desc-ignore, type: ignore }
+            { name: desc-strategy, type: strategy }
+            { name: desc-test, type: test }
         ]
     }]
 }
@@ -171,7 +171,7 @@ def "tests for all supported test directives" [] {
 @test
 def "tests with an unsupported attribute specified first" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
 
     "
     use std/testing *
@@ -187,10 +187,10 @@ def "tests with an unsupported attribute specified first" [] {
     let result = [$test_file] | discover test-suites | sort
 
     assert equal $result [{
-        name: "test"
+        name: test
         path: $test_file
         tests: [
-            { name: "some-test", type: "test" }
+            { name: some-test, type: test }
         ]
     }]
 }
@@ -198,7 +198,7 @@ def "tests with an unsupported attribute specified first" [] {
 @test
 def "tests with an unsupported description and supported attribute" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
 
     "
     use std/testing *
@@ -212,10 +212,10 @@ def "tests with an unsupported description and supported attribute" [] {
     let result = [$test_file] | discover test-suites | sort
 
     assert equal $result [{
-        name: "test"
+        name: test
         path: $test_file
         tests: [
-            { name: "some-test", type: "test" }
+            { name: some-test, type: test }
         ]
     }]
 }
@@ -223,7 +223,7 @@ def "tests with an unsupported description and supported attribute" [] {
 @test
 def "tests with an unsupported attribute and supported description" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
 
     "
     use std/testing *
@@ -239,10 +239,10 @@ def "tests with an unsupported attribute and supported description" [] {
     let result = [$test_file] | discover test-suites | sort
 
     assert equal $result [{
-        name: "test"
+        name: test
         path: $test_file
         tests: [
-            { name: "some-test", type: "test" }
+            { name: some-test, type: test }
         ]
     }]
 }
@@ -250,7 +250,7 @@ def "tests with an unsupported attribute and supported description" [] {
 @test
 def "tests for unsupported test directives are not discovered" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
 
     "
     use std/testing *
@@ -270,10 +270,10 @@ def "tests for unsupported test directives are not discovered" [] {
     let result = [$test_file] | discover test-suites | sort
 
     assert equal $result [{
-        name: "test"
+        name: test
         path: $test_file
         tests: [
-            { name: "stub", type: "test" }
+            { name: stub, type: test }
         ]
     }]
 }
@@ -281,8 +281,8 @@ def "tests for unsupported test directives are not discovered" [] {
 @test
 def "tests in multiple suites" [] {
     let temp = $in.temp
-    let test_file_1 = $temp | path join "test_1.nu"
-    let test_file_2 = $temp | path join "test_2.nu"
+    let test_file_1 = $temp | path join test_1.nu
+    let test_file_2 = $temp | path join test_2.nu
     let suite_files = [$test_file_1, $test_file_2]
 
     "
@@ -308,18 +308,18 @@ def "tests in multiple suites" [] {
 
     assert equal $result [
         {
-            name: "test_1"
+            name: test_1
             path: $test_file_1
             tests: [
-                { name: "test_bar", type: "test" }
-                { name: "test_foo", type: "test" }
+                { name: test_bar, type: test }
+                { name: test_foo, type: test }
             ]
         }
         {
-            name: "test_2"
+            name: test_2
             path: $test_file_2
             tests: [
-                { name: "test_baz", type: "test" }
+                { name: test_baz, type: test }
                 # Unsupported types removed
             ]
         }
@@ -329,8 +329,8 @@ def "tests in multiple suites" [] {
 @test
 def "tests for suites with matcher" [] {
     let temp = $in.temp
-    let test_file_1 = $temp | path join "test_1.nu"
-    let test_file_2 = $temp | path join "test_2.nu"
+    let test_file_1 = $temp | path join test_1.nu
+    let test_file_2 = $temp | path join test_2.nu
     let suite_files = [$test_file_1, $test_file_2]
 
     "
@@ -351,21 +351,21 @@ def "tests for suites with matcher" [] {
     def test_qux [] { }
     " | save $test_file_2
 
-    let result = $suite_files | discover test-suites --matcher "ba" | sort
+    let result = $suite_files | discover test-suites --matcher ba | sort
 
     assert equal $result [
         {
-            name: "test_1"
+            name: test_1
             path: $test_file_1
             tests: [
-                { name: "test_bar", type: "ignore" }
+                { name: test_bar, type: ignore }
             ]
         }
         {
-            name: "test_2"
+            name: test_2
             path: $test_file_2
             tests: [
-                { name: "test_baz", type: "test" }
+                { name: test_baz, type: test }
             ]
         }
     ]
@@ -374,7 +374,7 @@ def "tests for suites with matcher" [] {
 @test
 def "tests suites retaining non-tests when no-match" [] {
     let temp = $in.temp
-    let test_file = $temp | path join "test.nu"
+    let test_file = $temp | path join test.nu
     let suite_files = [$test_file]
 
     "
@@ -393,15 +393,15 @@ def "tests suites retaining non-tests when no-match" [] {
     def test_qux [] { }
     " | save $test_file
 
-    let result = $suite_files | discover test-suites --matcher "ba" | sort
+    let result = $suite_files | discover test-suites --matcher ba | sort
 
     assert equal $result [
         {
-            name: "test"
+            name: test
             path: $test_file
             tests: [
-                { name: "test_bar", type: "test" }
-                { name: "test_baz", type: "before-each" }
+                { name: test_bar, type: test }
+                { name: test_baz, type: "before-each" }
                 { name: "test_qux", type: "after-all" }
             ]
         }

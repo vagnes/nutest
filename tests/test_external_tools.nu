@@ -7,26 +7,26 @@ use harness.nu
 
 @before-all
 def setup-tests []: record -> record {
-    $in | harness setup-tests
+    harness setup-tests
 }
 
 @after-all
 def cleanup-tests []: record -> nothing {
-    $in | harness cleanup-tests
+    harness cleanup-tests
 }
 
 @before-each
 def setup-test []: record -> record {
-    $in | harness setup-test
+    harness setup-test
 }
 
 @after-each
 def cleanup-test []: record -> nothing {
-    $in | harness cleanup-test
+    harness cleanup-test
 }
 
 @test
-def non-captured-output-is-ignored [] {
+def non-captured-output-is-ignored []: any -> any {
     let code = {
         ^$nu.current-exe --version # This will print direct to stdout
         print "Only this text"
@@ -35,7 +35,7 @@ def non-captured-output-is-ignored [] {
     let result = $in | harness run $code
 
     assert equal ($result | reject suite test) {
-        result: "PASS"
+        result: PASS
         output: ["Only this text"]
     }
 }

@@ -13,8 +13,8 @@ def teardown [] {
 }
 
 @ignore
-def normal-error-is-unmodified [] {
-    let error = try { error make { msg: "normal error", help: "help text" } } catch { $in }
+def normal-error-is-unmodified []: any -> any {
+    let error = try { error make {msg: "normal error", help: "help text"} } catch { $in }
 
     let result = $error | unwrap-error
 
@@ -29,7 +29,7 @@ def normal-error-is-unmodified [] {
 @ignore
 def chained-error-is-unwrapped [] {
     def throw-error [] {
-        error make { msg: "original error", help: "help text" }
+        error make {msg: "original error", help: "help text"}
     }
     def calling-function [] {
         throw-error
@@ -49,7 +49,7 @@ def chained-error-is-unwrapped [] {
 @ignore
 def nested-chain-error-is-unwrapped [] {
     def throw-error [] {
-        error make { msg: "original error", help: "help text" }
+        error make {msg: "original error", help: "help text"}
     }
     def nested-error [] {
         throw-error
