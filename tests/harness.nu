@@ -19,7 +19,7 @@ export def cleanup-tests []: record -> nothing {
 
 # Encapsulate before-each behaviour
 export def setup-test []: record -> record {
-    $in | merge {
+    merge {
         temp_dir: (mktemp --tmpdir --directory)
     }
 }
@@ -39,7 +39,7 @@ export def run [
     let context = $in
     let temp = $context.temp_dir
     let returns = returns_table create
-    let strategy = { threads: 1 } | merge $strategy
+    let strategy = {threads: 1} | merge $strategy
 
     let test = random chars
     let suite = $code | create-closure-suite $temp $test
@@ -48,18 +48,18 @@ export def run [
 
     let result = $results | where test == $test
     if ($result | is-empty) {
-        error make { msg: $"No results found for test: ($test)" }
+        error make {msg: $"No results found for test: ($test)"}
     } else {
-        $result | first
+        $result | first 1
     }
 }
 
 def noop-event-processor []: nothing -> record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure> {
     {
-        run-start: { || ignore }
-        run-complete: { || ignore }
-        test-start: { |row| ignore }
-        test-complete: { |row| ignore }
+        run-start: {|| ignore }
+        run-complete: {|| ignore }
+        test-start: {|row| ignore }
+        test-complete: {|row| ignore }
     }
 }
 
@@ -77,12 +77,11 @@ def create-closure-suite [temp: string, test: string]: closure -> record {
     " | save --append $path
 
     {
-        name: "suite"
+        name: suite
         path: $path
-        tests: [{ name: $test, type: "test" }]
+        tests: [
+    {name: $test, type: test}
+]
     }
 }
 
-def trim-all []: string -> string {
-    $in | str trim | str replace --all --regex '[\n\t ]+' ' '
-}
