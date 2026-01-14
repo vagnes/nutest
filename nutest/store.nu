@@ -38,7 +38,7 @@ export def delete [] {
 }
 
 export def insert-result [ row: record<suite: string, test: string, result: string> ] {
-    retry-on-lock "nu_test_results" {
+    retry-on-lock nu_test_results {
         stor open | query db "
             INSERT INTO nu_test_results (suite, test, result)
             VALUES (:suite, :test, :result)
@@ -63,7 +63,7 @@ export def insert-result [ row: record<suite: string, test: string, result: stri
 
 # Test is "any" as it can be a string or null if emitted from before/after all
 export def insert-output [ row: record<suite: string, test: any, data: string> ] {
-    retry-on-lock "nu_test_output" {
+    retry-on-lock nu_test_output {
         $row | stor insert --table-name nu_test_output
     }
 }
@@ -80,7 +80,7 @@ def retry-on-lock [table: string, operation: closure] {
         try {
             do $operation
             break
-        } catch { |e|
+        } catch {|e|
             let error = $e | errors unwrap-error
             let reason = ($error.json | from json).labels?.0?.text?
             if $reason == $"database table is locked: ($table)" {
@@ -93,7 +93,7 @@ def retry-on-lock [table: string, operation: closure] {
         }
     }
     if $attempt == 0 {
-        error make { msg: $"Failed to insert into ($table) after ($max_attempts) attempts" }
+        error make {msg: $"Failed to insert into ($table) after ($max_attempts) attempts"}
     }
 }
 
@@ -115,7 +115,7 @@ export def query []: nothing -> table<suite: string, test: string, result: strin
         SELECT suite, test, result
         FROM nu_test_results
         ORDER BY suite, test
-    " | insert output { |row|
+    " | insert output {|row|
         query-output $db $row.suite $row.test
     }
 }
@@ -127,23 +127,18 @@ export def query-test [
 
     let db = stor open
     query-result $db $suite $test
-        | insert output { |row|
+        | insert output {|row|
             query-output $db $row.suite $row.test
         }
 }
 
-def query-result [
-    db: any
-    suite: string
-    test: string
-]: nothing -> table<suite: string, test: string, result: string> {
+def query-result [suite: any, test: any] {
 
-    $db
-        | query db "
+    query db "
             SELECT suite, test, result
             FROM nu_test_results
             WHERE suite = :suite AND test = :test
-        " --params { suite: $suite test: $test }
+        " --params {suite: $suite test: $test}
 }
 
 def query-output [
@@ -157,7 +152,7 @@ def query-output [
             FROM nu_test_output
             -- A test is NULL when emitted from before/after all
             WHERE suite = :suite AND (test = :test OR test IS NULL)
-        " --params { suite: $suite test: $test }
+        " --params {suite: $suite test: $test}
 
     $result
         | get data # The column name

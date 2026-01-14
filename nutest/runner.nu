@@ -25,7 +25,7 @@ export def nutest-299792458-execute-suite [
     suite_data: table
 ] {
     # We reset the test name to avoid collisions around tests within tests
-    with-env { NU_TEST_SUITE_NAME: $suite, NU_TEST_NAME: null } {
+    with-env {NU_TEST_SUITE_NAME: $suite, NU_TEST_NAME: null} {
         nutest-299792458-execute-suite-internal $default_strategy $suite_data
     }
 
@@ -45,27 +45,27 @@ def nutest-299792458-execute-suite-internal [
         if ($values | is-empty) { $default } else { $values | first }
     }
     def get-or-empty [key: string]: record -> list {
-        $in | get --optional $key | default []
+        get --optional $key | default []
     }
 
     # Also see the list in discover.nu
-    let strategy = $plan | find-or-default "strategy" { execute: { {} } } # Closure in record
-    let before_all = $plan | get-or-empty "before-all"
-    let before_each = $plan | get-or-empty "before-each"
-    let after_each = $plan | get-or-empty "after-each"
-    let after_all = $plan | get-or-empty "after-all"
-    let tests = $plan | get-or-empty "test"
-    let ignored = $plan | get-or-empty "ignore"
+    let strategy = $plan | find-or-default strategy {execute: { {} }} # Closure in record
+    let before_all = $plan | get-or-empty before-all
+    let before_each = $plan | get-or-empty before-each
+    let after_each = $plan | get-or-empty after-each
+    let after_all = $plan | get-or-empty after-all
+    let tests = $plan | get-or-empty test
+    let ignored = $plan | get-or-empty ignore
 
     # Highlight skipped tests first as there is no error handling required
-    nutest-299792458-force-result $ignored "SKIP"
+    nutest-299792458-force-result $ignored SKIP
 
     try {
         let strategy = $default_strategy | merge ({} | do $strategy.execute)
         let context_all = { } | nutest-299792458-execute-before $before_all
         $tests | nutest-299792458-execute-tests $strategy $context_all $before_each $after_each
         $context_all | nutest-299792458-execute-after $after_all
-    } catch { |error|
+    } catch {|error|
         # This should only happen when strategy or before/after all fails, so mark all tests failed
         # Each test run has its own exception handling so is not expected to trigger this
         nutest-299792458-force-error $tests $error
@@ -81,12 +81,12 @@ def nutest-299792458-execute-tests [
 
     let tests = $in
 
-    $tests | each { |test|
+    $tests | each {|test|
         # Allow print output to be associated with specific tests by adding name to the environment
-        with-env { NU_TEST_NAME: $test.name } {
-            nutest-299792458-emit "start"
+        with-env {NU_TEST_NAME: $test.name} {
+            nutest-299792458-emit start
             nutest-299792458-execute-test $context_all $before_each $after_each $test
-            nutest-299792458-emit "finish"
+            nutest-299792458-emit finish
         }
     }
 }
@@ -99,22 +99,22 @@ def nutest-299792458-execute-test [
 ] {
     let context = try {
         $context_all | nutest-299792458-execute-before $before_each
-    } catch { |error|
+    } catch {|error|
         nutest-299792458-fail $error
         return
     }
 
     try {
         $context | do $test.execute
-        nutest-299792458-emit "result" "PASS"
+        nutest-299792458-emit result PASS
         # Note that although we have emitted PASS the after-each may still fail (see below)
-    } catch { |error|
+    } catch {|error|
         nutest-299792458-fail $error
     }
 
     try {
         $context | nutest-299792458-execute-after $after_each
-    } catch { |error|
+    } catch {|error|
         # It's possible to get a test PASS above then emit FAIL when processing after-each.
         # This needs to be handled by the store. We could work around it here, but since we have
         # to handle for after-all outside concurrent processing of tests anyway this is simpler.
@@ -124,31 +124,33 @@ def nutest-299792458-execute-test [
 
 def nutest-299792458-force-result [tests: list, status: string] {
     for test in $tests {
-        with-env { NU_TEST_NAME: $test.name } {
-            nutest-299792458-emit "start"
-            nutest-299792458-emit "result" $status
-            nutest-299792458-emit "finish"
+        with-env {NU_TEST_NAME: $test.name} {
+            nutest-299792458-emit start
+            nutest-299792458-emit result $status
+            nutest-299792458-emit finish
         }
     }
 }
 
 def nutest-299792458-force-error [tests: list, error: record] {
     for test in $tests {
-        with-env { NU_TEST_NAME: $test.name } {
-            nutest-299792458-emit "start"
+        with-env {NU_TEST_NAME: $test.name} {
+            nutest-299792458-emit start
             nutest-299792458-fail $error
-            nutest-299792458-emit "finish"
+            nutest-299792458-emit finish
         }
     }
 }
 
 def nutest-299792458-execute-before [items: list]: record -> record {
     let initial_context = $in
-    $items | reduce --fold $initial_context { |it, acc|
+    $items | reduce --fold $initial_context {|it, acc|
         let next = ($acc | do $it.execute) | default { }
         let type = $next | describe
-        if (not ($type | str starts-with "record")) {
-            error make { msg: $"The before-each/all command '($it.name)' must return a record or nothing, not '($type)'" }
+        if (not ($type | str starts-with record)) {
+            error make {
+    msg: $"The before-each/all command '($it.name)' must return a record or nothing, not '($type)'"
+}
         }
         $acc | merge $next
     }
@@ -162,17 +164,17 @@ def nutest-299792458-execute-after [items: list]: record -> nothing {
 }
 
 def nutest-299792458-fail [error: record] {
-    nutest-299792458-emit "result" "FAIL"
+    nutest-299792458-emit result FAIL
     # Exclude raw so it can be converted to Nuon
     # Exclude debug as it reduces noise in the output
-    print -e ($error | reject raw debug)
+    error make {msg: ($error | reject raw debug)}
 }
 
 # Keep a reference to the internal print command
 alias nutest-299792458-print = print
 
 # Override the print command to provide context for output
-export def print [--stderr (-e), --raw (-r), --no-newline (-n), ...rest: any] {
+export def print [...rest: any] {
     # Capture the stream type to allow downstream rendering to differentiate between the two
     let stream = if $stderr { "error" } else { "output" }
 
@@ -191,7 +193,7 @@ export def print [--stderr (-e), --raw (-r), --no-newline (-n), ...rest: any] {
 
 def nutest-299792458-emit [type: string, payload: any = null] {
     let event = {
-        timestamp: (date now | format date "%+")
+        timestamp: (date now | format date %+)
         suite: $env.NU_TEST_SUITE_NAME
         test: $env.NU_TEST_NAME?
         type: $type
