@@ -13,8 +13,8 @@ export def create []: nothing -> record<name: string, run-start: closure, run-co
         name: "display terminal"
         run-start: { start-suite }
         run-complete: { complete-suite }
-        test-start: { |row| start-test $row }
-        test-complete: { |row| $row | complete-test $theme $formatter }
+        test-start: {|row| start-test $row }
+        test-complete: {|row| $row | complete-test $theme $formatter }
     }
 }
 
@@ -27,17 +27,16 @@ def complete-suite []: nothing -> nothing {
     let by_result = $results | group-by result
 
     let total = $results | length
-    let passed = $by_result | count "PASS"
-    let failed = $by_result | count "FAIL"
-    let skipped = $by_result | count "SKIP"
+    let passed = $by_result | count PASS
+    let failed = $by_result | count FAIL
+    let skipped = $by_result | count SKIP
 
     let output = $"($total) total, ($passed) passed, ($failed) failed, ($skipped) skipped"
     print $"Test run completed: ($output)"
 }
 
 def count [key: string]: record -> int {
-    $in
-        | get --optional $key
+    get --optional $key
         | default []
         | length
 }
@@ -47,16 +46,16 @@ def start-test [row: record]: nothing -> nothing {
 
 def complete-test [theme: closure, formatter: closure]: record -> nothing {
     let event = $in
-    let suite = { type: "suite", text: $event.suite } | do $theme
-    let test = { type: "test", text: $event.test } | do $theme
+    let suite = {type: suite, text: $event.suite} | do $theme
+    let test = {type: test, text: $event.test} | do $theme
 
     let result = store query-test $event.suite $event.test
     if ($result | is-empty) {
-        error make { msg: $"No test results found for: ($event)" }
+        error make {msg: $"No test results found for: ($event)"}
     }
-    let row = $result | first
+    let row = $result | first 1
 
-    if $row.result != "PASS" {
+    if $row.result != PASS {
         let formatted = format-result $row.result $theme
 
         if ($row.output | is-not-empty) {
@@ -70,9 +69,9 @@ def complete-test [theme: closure, formatter: closure]: record -> nothing {
 
 def format-result [result: string, theme: closure]: nothing -> string {
     match $result {
-        "PASS" => ({ type: "pass", text: $result } | do $theme)
-        "SKIP" => ({ type: "skip", text: $result } | do $theme)
-        "FAIL" => ({ type: "fail", text: $result } | do $theme)
+        "PASS" => ({type: pass, text: $result} | do $theme)
+        "SKIP" => ({type: skip, text: $result} | do $theme)
+        "FAIL" => ({type: fail, text: $result} | do $theme)
         _ => $result
     }
 }
@@ -80,7 +79,7 @@ def format-result [result: string, theme: closure]: nothing -> string {
 def format-output [formatter: closure]: table<stream: string, items: any> -> string {
     let output = $in
     let formatted = $output | do $formatter
-    if ($formatted | describe) == "string" {
+    if ($formatted | describe) == string {
         $formatted | indent
     } else {
         $formatted

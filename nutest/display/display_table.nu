@@ -11,10 +11,10 @@ export def create []: nothing -> record<name: string, run-start: closure, run-co
 
     {
         name: "display table"
-        run-start: { || ignore }
-        run-complete: { || print (query-results $theme $formatter) }
-        test-start: { |row| ignore }
-        test-complete: { |row| ignore }
+        run-start: {|| ignore }
+        run-complete: {|| print (query-results $theme $formatter) }
+        test-start: {|row| ignore }
+        test-complete: {|row| ignore }
 
         # Easier testing
         results: { query-results $theme $formatter }
@@ -26,10 +26,10 @@ def query-results [
     formatter: closure
 ]: nothing -> table<suite: string, test: string, result: string, output: string> {
 
-    store query | each { |row|
+    store query | each {|row|
         {
-            suite: ({ type: "suite", text: $row.suite } | do $theme)
-            test: ({ type: "test", text: $row.test } | do $theme)
+            suite: ({type: suite, text: $row.suite} | do $theme)
+            test: ({type: test, text: $row.test} | do $theme)
             result: (format-result $row.result $theme)
             output: ($row.output | do $formatter)
         }
@@ -38,9 +38,9 @@ def query-results [
 
 def format-result [result: string, theme: closure]: nothing -> string {
     match $result {
-        "PASS" => ({ type: "pass", text: $result } | do $theme)
-        "SKIP" => ({ type: "skip", text: $result } | do $theme)
-        "FAIL" => ({ type: "fail", text: $result } | do $theme)
+        "PASS" => ({type: pass, text: $result} | do $theme)
+        "SKIP" => ({type: skip, text: $result} | do $theme)
+        "FAIL" => ({type: fail, text: $result} | do $theme)
         _ => $result
     }
 }
