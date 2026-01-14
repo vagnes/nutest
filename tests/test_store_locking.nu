@@ -10,30 +10,30 @@ def create-store []: record -> record {
 }
 
 @after-all
-def delete-store [] {
+def delete-store []: any -> string {
     delete
 }
 
 @before-each
 def create-state-file []: record -> record {
     let state_file = mktemp
-    { state_file: $state_file }
+    {state_file: $state_file}
 }
 
 @after-each
 def delete-state-file []: record -> nothing {
     let state_file = $in.state_file
-    rm -f $state_file
+    rm --force $state_file
 }
 
 def initialise-attempts-file []: record<state_file: string> -> nothing {
     let context = $in
-    "0" | save -f $context.state_file
+    "0" | save --force $context.state_file
 }
 
 def new-attempt []: record<state_file: string> -> nothing {
     let context = $in
-    ($context | attempt-count) + 1 | save -f $context.state_file
+    ($context | attempt-count) + 1 | save --force $context.state_file
 }
 
 def attempt-count []: record<state_file: string> -> int {
@@ -42,7 +42,7 @@ def attempt-count []: record<state_file: string> -> int {
 }
 
 @test
-def retry-on-table-lock-fails [] {
+def retry-on-table-lock-fails []: any -> any {
     let context = $in
     $context | initialise-attempts-file
     let table = "test_table"
@@ -55,7 +55,7 @@ def retry-on-table-lock-fails [] {
     try {
         retry-on-lock $table $operation
         assert false # Should not reach here
-    } catch { |e|
+    } catch {|e|
         let result = $e | errors unwrap-error | get json | from json | get msg
         assert str contains $result $"Failed to insert into ($table) after"
     }
@@ -77,7 +77,7 @@ def retry-on-table-lock-eventually-succeeds [] {
 
     try {
         retry-on-lock $table $operation
-    } catch { |e|
+    } catch {|e|
         assert false # Should not reach here
     }
     assert equal ($context | attempt-count) 5
@@ -91,13 +91,13 @@ def retry-on-table-lock-throws-other-errors [] {
 
     let operation = {
         $context | new-attempt
-        error make { msg: "some other error" }
+        error make {msg: "some other error"}
     }
 
     try {
         retry-on-lock $table $operation
         assert false # Should not reach here
-    } catch { |e|
+    } catch {|e|
         let result = $e | errors unwrap-error | get json | from json | get msg
         assert equal $result "some other error"
     }

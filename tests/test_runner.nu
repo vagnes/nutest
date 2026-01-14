@@ -12,7 +12,7 @@ const failure_message = "No tea"
 def execute-plan-empty [] {
     let plan = []
 
-    let results = test-run "empty-suite" $plan
+    let results = test-run empty-suite $plan
 
     assert equal $results []
 }
@@ -20,66 +20,66 @@ def execute-plan-empty [] {
 @test
 def execute-plan-test [] {
     let plan = [
-        { name: "testing", type: "test", execute: "{ success }" }
+        { name: testing, type: test, execute: "{ success }" }
     ]
 
-    let results = test-run "suite" $plan
+    let results = test-run suite $plan
 
     assert equal $results [
         [suite test type payload];
-        [ "suite", "testing", "start", null ]
-        [ "suite", "testing", "output", { stream: "output", items: [$success_message] } ]
-        [ "suite", "testing", "result", "PASS" ]
-        [ "suite", "testing", "finish", null ]
+        [ suite, testing, start, null ]
+        [ suite, testing, output, { stream: output, items: [$success_message] } ]
+        [ suite, testing, result, PASS ]
+        [ suite, testing, finish, null ]
     ]
 }
 
 @test
 def execute-plan-with-error [] {
     let plan = [
-        { name: "testing", type: "test", execute: "{ failure }" }
+        { name: testing, type: test, execute: "{ failure }" }
     ]
 
-    let results = test-run "suite" $plan
+    let results = test-run suite $plan
 
     assert equal $results [
         [suite test type payload];
-        [ "suite", "testing", "start", null ]
-        [ "suite", "testing", "result", "FAIL" ]
-        [ "suite", "testing", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "testing", "finish", null ]
+        [ suite, testing, start, null ]
+        [ suite, testing, result, FAIL ]
+        [ suite, testing, output, { stream: error, items: [$failure_message] } ]
+        [ suite, testing, finish, null ]
     ]
 }
 
 @test
 def execute-plan-tests [] {
     let plan = [
-        { name: "test_success", type: "test", execute: "{ success }" }
-        { name: "test_success_warning", type: "test", execute: "{ warning; success }" }
-        { name: "test_failure", type: "test", execute: "{ failure }" }
-        { name: "test_half_failure", type: "test", execute: "{ success; warning; failure }" }
+        { name: test_success, type: test, execute: "{ success }" }
+        { name: test_success_warning, type: test, execute: "{ warning; success }" }
+        { name: test_failure, type: test, execute: "{ failure }" }
+        { name: test_half_failure, type: test, execute: "{ success; warning; failure }" }
     ]
 
-    let results = test-run "suite" $plan
+    let results = test-run suite $plan
 
     assert equal $results ([
         [suite test type payload];
-        [ "suite", "test_success", "start", null ]
-        [ "suite", "test_success", "output", { stream: "output", items: [$success_message] } ]
-        [ "suite", "test_success", "result", "PASS" ]
-        [ "suite", "test_success", "finish", null ]
-        [ "suite", "test_success_warning", "start", null ]
-        [ "suite", "test_success_warning", "output", { stream: "error", items: [$warning_message] } ]
-        [ "suite", "test_success_warning", "output", { stream: "output", items: [$success_message] } ]
-        [ "suite", "test_success_warning", "result", "PASS" ]
-        [ "suite", "test_success_warning", "finish", null ]
-        [ "suite", "test_failure", "start", null ]
-        [ "suite", "test_failure", "result", "FAIL" ]
-        [ "suite", "test_failure", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test_failure", "finish", null ]
-        [ "suite", "test_half_failure", "start", null ]
-        [ "suite", "test_half_failure", "output", { stream: "output", items: [$success_message] } ]
-        [ "suite", "test_half_failure", "output", { stream: "error", items: [$warning_message] } ]
+        [ suite, test_success, start, null ]
+        [ suite, test_success, output, { stream: output, items: [$success_message] } ]
+        [ suite, test_success, result, PASS ]
+        [ suite, test_success, finish, null ]
+        [ suite, test_success_warning, start, null ]
+        [ suite, test_success_warning, output, { stream: error, items: [$warning_message] } ]
+        [ suite, test_success_warning, output, { stream: output, items: [$success_message] } ]
+        [ suite, test_success_warning, result, PASS ]
+        [ suite, test_success_warning, finish, null ]
+        [ suite, test_failure, start, null ]
+        [ suite, test_failure, result, FAIL ]
+        [ suite, test_failure, output, { stream: error, items: [$failure_message] } ]
+        [ suite, test_failure, finish, null ]
+        [ suite, test_half_failure, start, null ]
+        [ suite, test_half_failure, output, { stream: output, items: [$success_message] } ]
+        [ suite, test_half_failure, output, { stream: "error", items: [$warning_message] } ]
         [ "suite", "test_half_failure", "result", "FAIL" ]
         [ "suite", "test_half_failure", "output", { stream: "error", items: [$failure_message] } ]
         [ "suite", "test_half_failure", "finish", null ]
