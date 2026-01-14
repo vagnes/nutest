@@ -18,21 +18,21 @@ def "count when no tests" [] {
 @test
 def "count with suites of all states" [] {
     let data = [
-        { suite: "suite1", test: "test1A", result: "PASS" }
-        { suite: "suite1", test: "test1B", result: "PASS" }
-        { suite: "suite1", test: "test1C", result: "PASS" }
-        { suite: "suite1", test: "test1D", result: "FAIL" }
-        { suite: "suite1", test: "test1E", result: "FAIL" }
-        { suite: "suite1", test: "test1F", result: "SKIP" }
+        {suite: suite1, test: test1A, result: PASS}
+        {suite: suite1, test: test1B, result: PASS}
+        {suite: suite1, test: test1C, result: PASS}
+        {suite: suite1, test: test1D, result: FAIL}
+        {suite: suite1, test: test1E, result: FAIL}
+        {suite: suite1, test: test1F, result: SKIP}
 
-        { suite: "suite2", test: "test2A", result: "SKIP" }
-        { suite: "suite2", test: "test2B", result: "SKIP" }
-        { suite: "suite2", test: "test2C", result: "SKIP" }
-        { suite: "suite2", test: "test2D", result: "PASS" }
-        { suite: "suite2", test: "test2E", result: "PASS" }
-        { suite: "suite2", test: "test2F", result: "FAIL" }
+        {suite: suite2, test: test2A, result: SKIP}
+        {suite: suite2, test: test2B, result: SKIP}
+        {suite: suite2, test: test2C, result: SKIP}
+        {suite: suite2, test: test2D, result: PASS}
+        { suite: suite2, test: test2E, result: PASS }
+        { suite: suite2, test: test2F, result: FAIL }
 
-        { suite: "suite3", test: "test3A", result: "PASS" }
+        { suite: suite3, test: test3A, result: PASS }
     ]
 
     assert equal ($data | count) {
@@ -41,17 +41,17 @@ def "count with suites of all states" [] {
         skipped: 4
     }
 
-    assert equal ($data | where suite == "suite1" | count) {
+    assert equal ($data | where suite == suite1 | count) {
         total: 6
         failed: 2
         skipped: 1
     }
-    assert equal ($data | where suite == "suite2" | count) {
+    assert equal ($data | where suite == suite2 | count) {
         total: 6
         failed: 1
         skipped: 3
     }
-    assert equal ($data | where suite == "suite3" | count) {
+    assert equal ($data | where suite == suite3 | count) {
         total: 1
         failed: 0
         skipped: 0
@@ -60,7 +60,7 @@ def "count with suites of all states" [] {
 
 @test
 def "testcase pass" [] {
-    let data = { suite: "suite", test: "test", result: "PASS", output: [] }
+    let data = { suite: suite, test: test, result: PASS, output: [] }
 
     let result = $data | testcase | to xml --self-closed
 
@@ -71,7 +71,7 @@ def "testcase pass" [] {
 
 @test
 def "testcase fail" [] {
-    let data = { suite: "suite", test: "test", result: "FAIL", output: [] }
+    let data = { suite: suite, test: test, result: FAIL, output: [] }
 
     let result = $data | testcase | to xml --self-closed
 
@@ -84,7 +84,7 @@ def "testcase fail" [] {
 
 @test
 def "testcase skip" [] {
-    let data = { suite: "suite", test: "test", result: "SKIP", output: [] }
+    let data = { suite: suite, test: test, result: SKIP, output: [] }
 
     let result = $data | testcase | to xml --self-closed
 
@@ -102,7 +102,7 @@ def "testsuite with no tests" [] {
     try {
         $data | testsuite | to xml --self-closed
         assert false "Should have errored"
-    } catch { |error|
+    } catch {|error|
         assert equal $error.msg "No test entries"
     }
 }
@@ -110,12 +110,12 @@ def "testsuite with no tests" [] {
 @test
 def "testsuite with test stats" [] {
     let data = [[suite, test, result, output];
-        ["suite1", "test1A", "PASS", []]
-        ["suite1", "test1B", "PASS", []]
-        ["suite1", "test1C", "PASS", []]
-        ["suite1", "test1D", "FAIL", []]
-        ["suite1", "test1E", "FAIL", []]
-        ["suite1", "test1F", "SKIP", []]
+        [suite1, test1A, PASS, []]
+        [suite1, test1B, PASS, []]
+        [suite1, test1C, PASS, []]
+        [suite1, test1D, FAIL, []]
+        [suite1, test1E, FAIL, []]
+        [suite1, test1F, SKIP, []]
     ]
 
     let result = $data | testsuite | to xml --self-closed
@@ -128,9 +128,9 @@ def "testsuite with test stats" [] {
 @test
 def "testsuite with tests" [] {
     let data = [[suite, test, result, output];
-        ["suite1", "test1A", "PASS", []]
-        ["suite1", "test1B", "FAIL", []]
-        ["suite1", "test1C", "SKIP", []]
+        [suite1, test1A, PASS, []]
+        [suite1, test1B, FAIL, []]
+        [suite1, test1C, SKIP, []]
     ]
 
     let result = $data | testsuite | to xml --self-closed
@@ -151,9 +151,9 @@ def "testsuite with tests" [] {
 @test
 def "testsuites with suites" [] {
     let data = [[suite, test, result, output];
-        ["suite1", "testA", "PASS", []]
-        ["suite2", "testB", "FAIL", []]
-        ["suite3", "testC", "SKIP", []]
+        [suite1, testA, PASS, []]
+        [suite2, testB, FAIL, []]
+        [suite3, testC, SKIP, []]
     ]
 
     let result = $data | testsuites | to xml --self-closed
@@ -178,5 +178,5 @@ def "testsuites with suites" [] {
 }
 
 def strip-xml-whitespace []: string -> string {
-    $in | str trim | str replace --all --regex '>[\n\r ]+<' '><'
+    str trim | str replace --all --regex '>[\n\r ]+<' ><
 }

@@ -9,26 +9,26 @@ use ../../nutest/errors.nu
 
 @before-all
 def setup-tests []: record -> record {
-    $in | harness setup-tests
+    harness setup-tests
 }
 
 @after-all
 def cleanup-tests []: record -> nothing {
-    $in | harness cleanup-tests
+    harness cleanup-tests
 }
 
 @before-each
 def setup-test []: record -> record {
-    $in | harness setup-test
+    harness setup-test
 }
 
 @after-each
 def cleanup-test []: record -> nothing {
-    $in | harness cleanup-test
+    harness cleanup-test
 }
 
 @test
-def "assertion is compact" [] {
+def "assertion is compact" []: any -> any {
     # From 0.109.2+ the assertion message is already compact and this function is no longer required
     if ((version).major > 0 or (version).minor > 109 or ((version).minor == 109 and (version).patch > 1)) {
         return
@@ -51,7 +51,7 @@ def "assertion is compact" [] {
 @test
 def "basic compact" [] {
     let code = {
-        error make { msg: 'some error' }
+        error make {msg: 'some error'}
     }
 
     let result = $in | run $code
@@ -108,7 +108,7 @@ def "full compact" [] {
 
 def run [code: closure]: record -> record<data: record, output: string> {
     let result = $in | harness run $code
-    assert equal $result.result "FAIL"
+    assert equal $result.result FAIL
 
     let output = do (display_table create).results
         | where test == $result.test
@@ -123,5 +123,5 @@ def run [code: closure]: record -> record<data: record, output: string> {
 }
 
 def trim-all []: string -> string {
-    $in | str trim | str replace --all --regex '[\n\r\t ]+' ' '
+    str trim | str replace --all --regex '[\n\r\t ]+' ' '
 }
