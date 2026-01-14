@@ -4,7 +4,7 @@ use ../nutest/store.nu
 
 #[strategy]
 def sequential []: nothing -> record {
-    { threads: 1 }
+    {threads: 1}
 }
 
 @before-each
@@ -22,18 +22,18 @@ def cleanup-test-dir [] {
 }
 
 @test
-def "delete a created store" [] {
+def "delete a created store" []: any -> string {
     let store = store create
     store delete
 }
 
 @test
-def "delete succeeds even no results tables" [] {
+def "delete succeeds even no results tables" []: any -> string {
     store delete
 }
 
 @test
-def "runs with previous unclean run" [] {
+def "runs with previous unclean run" []: any -> any {
     let context = $in
     let temp = $context.temp
 

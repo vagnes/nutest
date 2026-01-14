@@ -4,7 +4,7 @@ source ../nutest/store.nu
 
 #[strategy]
 def sequential []: nothing -> record {
-    { threads: 1 }
+    {threads: 1}
 }
 
 @before-each
@@ -14,12 +14,12 @@ def create-store []: record -> record {
 }
 
 @after-each
-def delete-store [] {
+def delete-store []: any -> string {
     delete
 }
 
 @test
-def result-success-when-no-tests [] {
+def result-success-when-no-tests []: any -> any {
     let result = success
 
     assert equal $result true
