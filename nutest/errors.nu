@@ -7,8 +7,8 @@ export def unwrap-error []: record<msg: string, rendered: string, json: string> 
 
     mut error = $original
     mut json = $error.json | from json
-    while (("inner" in $json) and ($json.inner | is-not-empty)) {
-        $json = $error.json | from json | get inner | first
+    while ((inner in $json) and ($json.inner | is-not-empty)) {
+        $json = $error.json | from json | get inner | first 1
         $error = $error | merge {
             msg: $json.msg
             json: ($json | to json)
@@ -35,7 +35,7 @@ def last-rendered []: string -> string {
         $rendered
     } else {
         $lines
-            | slice ($errors_start | last)..
+            | slice ($errors_start | last 1)..
             | str join "\n"
     }
 }

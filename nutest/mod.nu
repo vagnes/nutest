@@ -14,11 +14,11 @@ export def list-tests [
     let path = $path | default $env.PWD | check-path
     let suites = $path | discover suite-files | discover test-suites
 
-    $suites | each { |suite|
+    $suites | each {|suite|
         $suite.tests
             # Only list actual test and ignore types, exclude strategy functions
-            | where { $in.type in ["test", "ignore"] }
-            | each { |test| { suite: $suite.name, test: $test.name } }
+            | where { $in.type in [test ignore] }
+            | each {|test| {suite: $suite.name, test: $test.name} }
     } | flatten | sort-by suite test
 }
 
@@ -64,7 +64,7 @@ export def run-tests [
 
     let result = do $returns.results
     let success = store success
-    try { do $report.save $result } catch { |error| print -e $error }
+    try { do $report.save $result } catch {|error| error make {msg: $error} }
 
     store delete
 
@@ -80,7 +80,7 @@ export def run-tests [
 def check-path []: string -> string {
     let path = $in
     if (not ($path | path exists)) {
-        error make { msg: $"Path doesn't exist: ($path)" }
+        error make {msg: $"Path doesn't exist: ($path)"}
     }
     $path
 }
@@ -99,9 +99,7 @@ def select-strategy []: any -> record<threads: int> {
 }
 
 # A display implements the event processor interface of the orchestrator
-def select-display [
-    returns_option: any
-]: any -> record<name: string, run-start: closure, run-complete: closure, test-start: closure, test-complete: closure> {
+def select-display [returns_option: any] {
 
     let display_option = $in
     let display_option = match $display_option {
@@ -124,7 +122,7 @@ def select-display [
             display_table create
         }
         _ => {
-            error make { msg: $"Unknown display: ($display_option)" }
+            error make {msg: $"Unknown display: ($display_option)"}
         }
     }
 }
@@ -147,7 +145,7 @@ def select-returns []: any -> record<name: string, result: closure> {
             returns_table create
         }
         _ => {
-            error make { msg: $"Unknown return: ($returns_option)" }
+            error make {msg: $"Unknown return: ($returns_option)"}
         }
     }
 }
@@ -165,7 +163,7 @@ def select-report []: any -> record<save: closure> {
             report_junit create $path
         }
         _ => {
-            error make { msg: $"Unknown report: ($report_option)" }
+            error make {msg: $"Unknown report: ($report_option)"}
         }
     }
 }

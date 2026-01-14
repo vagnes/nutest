@@ -10,7 +10,7 @@ export def unformatted []: nothing -> closure {
     #table<stream: string, items: list<any>> -> list<any>
     {
         $in
-            | each { |message| $message.items }
+            | each {|message| $message.items }
             | flatten
     }
 }
@@ -25,7 +25,7 @@ export def pretty [
     {
         let events  = $in
         $events
-            | each { |event| $event | pretty-format-event $theme $error_format }
+            | each {|event| $event | pretty-format-event $theme $error_format }
             | str join "\n"
     }
 }
@@ -43,7 +43,7 @@ def pretty-format-event [
         { stream: "error", items: $items } => {
             let formatted = $items | each { $in | pretty-format-item $error_format }
             let text = ($formatted | str join "\n")
-            { type: "warning", text: $text } | do $theme
+            {type: warning, text: $text} | do $theme
         }
     }
 }
@@ -59,9 +59,9 @@ def pretty-format-item [error_format: string]: any -> any {
 
 def looks-like-error []: any -> bool {
     let value = $in
-    if ($value | describe | str starts-with "record") {
+    if ($value | describe | str starts-with record) {
         let columns = $value | columns
-        ("msg" in $columns) and ("rendered" in $columns) and ("json" in $columns)
+        (msg in $columns) and (rendered in $columns) and (json in $columns)
     } else {
         false
     }
@@ -74,7 +74,7 @@ def format-error [error_format: string]: record -> any {
         "rendered" => ($error | error-format-rendered)
         "compact" => ($error | error-format-compact)
         "record" => $error
-        _ => (error make { msg: $"Unknown error format: ($error_format)" })
+        _ => (error make {msg: $"Unknown error format: ($error_format)"})
     }
 }
 
@@ -94,7 +94,7 @@ def error-format-compact []: record -> string {
     if $help != null {
         $"($message)\n($help)"
     } else if ($labels != null) {
-        let detail = $labels | each { |label|
+        let detail = $labels | each {|label|
             | get text
             # Not sure why this is in the middle of the error json...
             | str replace --all "originates from here" ''
@@ -110,12 +110,12 @@ def error-format-compact []: record -> string {
             let formatted = ($detail
                 | str replace --all --regex '\n[ ]+Left' "|>Left"
                 | str replace --all --regex '\n[ ]+Right' "|>Right"
-                | str replace --all --regex '[\n\r]+' '\n'
+                | str replace --all --regex '[\n\r]+' \n
                 | str replace --all "|>" "\n|>")
                 | str join ""
-            [$message, ...($formatted | lines)] | str join "\n"
+            [$message ...($formatted | lines)] | str join "\n"
          } else {
-            [$message, ...($detail | lines)] | str join "\n"
+            [$message ...($detail | lines)] | str join "\n"
          }
     } else {
         $message

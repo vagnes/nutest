@@ -22,9 +22,7 @@ export def run-suites [
     strategy: record
 ]: list<record<name: string, path: string, tests: table>> -> nothing {
 
-    $in | each { |suite|
-        run-suite $event_processor $strategy $suite.name $suite.path $suite.tests
-    }
+    each {|suite| run-suite $event_processor $strategy $suite.name $suite.path $suite.tests } | ignore
 }
 
 def run-suite [
@@ -63,7 +61,7 @@ def run-suite [
                 if $error.msg == "error when loading nuon text" {
                     # Test printed direct to stdout so runner could not capture output,
                     # which means we cannot associate with a specific test
-                    print -e $"Warning: Non-captured output for '($suite)': ($line)"
+                    error make { msg: $"Warning: Non-captured output for '($suite)': ($line)" }
                 } else {
                     $error.raw
                 }
@@ -73,12 +71,12 @@ def run-suite [
         # This is only triggered on a suite-level failure so not caught by the embedded runner
         # This replicates this suite-level failure down to each test
         # Only apply to actual test and ignore types, exclude strategy functions
-        for test in ($tests | where type in ["test", "ignore"]) {
-            let template = { timestamp: (date now | format date "%+"), suite: $suite, test: $test.name }
-            $template | merge { type: "start", payload: null } | process-event $event_processor
-            $template | merge { type: "result", payload: "FAIL" } | process-event $event_processor
+        for test in ($tests | where type in [test, ignore]) {
+            let template = { timestamp: (date now | format date %+), suite: $suite, test: $test.name }
+            $template | merge { type: start, payload: null } | process-event $event_processor
+            $template | merge { type: result, payload: FAIL } | process-event $event_processor
             $template | merge (as-error-output $result.stderr) | process-event $event_processor
-            $template | merge { type: "finish", payload: null } | process-event $event_processor
+            $template | merge { type: finish, payload: null } | process-event $event_processor
         }
     }
 }
@@ -107,8 +105,8 @@ def create-test-plan-data [test: record<name: string, type: string>]: nothing ->
 # Need to encode orchestrator errors as the runner would do, and compatible with the store output
 def as-error-output [error: string]: nothing -> record {
     {
-        type: "output"
-        payload: ({ stream: "error", items: [$error] } | to nuon | encode base64)
+        type: output
+        payload: ({ stream: error, items: [$error] } | to nuon | encode base64)
     }
 }
 
