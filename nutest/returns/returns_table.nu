@@ -14,7 +14,7 @@ def query-results [
     formatter: closure
 ]: nothing -> table<suite: string, test: string, result: string, output: string> {
 
-    store query | each { |row|
+    store query | each {|row|
         {
             suite: $row.suite
             test: $row.test

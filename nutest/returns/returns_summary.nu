@@ -15,15 +15,14 @@ def query-summary []: nothing -> record<total: int, passed: int, failed: int, sk
 
     {
         total: ($results | length)
-        passed: ($by_result | count "PASS")
-        failed: ($by_result | count "FAIL")
-        skipped: ($by_result | count "SKIP")
+        passed: ($by_result | count PASS)
+        failed: ($by_result | count FAIL)
+        skipped: ($by_result | count SKIP)
     }
 }
 
 def count [key: string]: record -> int {
-    $in
-        | get --optional $key
+    get --optional $key
         | default []
         | length
 }
