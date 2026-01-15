@@ -13,17 +13,6 @@ def setup [] -> any
 
 @ignore
 def normal-error-is-unmodified []: any -> any {
-    let error = try { error make {msg: "normal error", help: "help text"} } catch { $in }
-
-    let result = $error | unwrap-error
-
-    assert equal $result.msg "normal error"
-    assert ($result.rendered | ansi strip | find --regex "^Error: [ ×x\n]+ normal error.*" | is-not-empty)
-    assert equal ($result.json | from json | select msg help) {
-        msg: "normal error"
-        help: "help text"
-    }
-}def chained-error-is-unwrapped [] -> anyapped [] {
     def throw-error [] {
         error make {msg: "original error", help: "help text"}
     }

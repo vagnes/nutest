@@ -123,7 +123,7 @@ def parse-file-direct [file: path]: nothing -> list<record<name: string, attribu
         if ($line | is-not-empty) and ($line =~ '^\s*@') {
             # Try to extract attribute name with brackets @[test]
             let attr_match_brackets = $line | parse --regex '^\s*@\[([a-zA-Z_-]+)\]'
-            
+
             let attr = if ($attr_match_brackets | is-not-empty) {
                 $attr_match_brackets.capture0.0
             } else {
@@ -135,8 +135,8 @@ def parse-file-direct [file: path]: nothing -> list<record<name: string, attribu
                     ""
                 }
             }
-            
-            if not ($attr | is-empty) {
+
+            if $attr | is-not-empty {
                 # Look for the function definition on the next line(s)
                 let func_line = $lines | get --optional ($i + 1)
                 if ($func_line | is-not-empty) and ($func_line =~ '^\s*def\s+') {

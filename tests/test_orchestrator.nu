@@ -220,7 +220,7 @@ def run-test-with-output [] -> record
     let temp = $context.temp
 
     mut suite = create-suite $temp test-with-output
-    let suites = [ ("print 1 2; print -e 3 4" | append-test $temp $suite test) ]
+    let suites = [ ("print 1 2; print --stderr 3 4" | append-test $temp $suite test) ]
     let results = $suites | test-run $context
 
     assert equal $results [
@@ -239,11 +239,11 @@ def run-before-after-with-output [] -> record
     let temp = $context.temp
 
     mut suite = create-suite $temp all-with-output
-    let suite = ("print bao; print -e bao" | append-test $temp $suite ba --type before-all)
-    let suite = ("print beo; print -e beo" | append-test $temp $suite be --type before-each)
-    let suite = ("print to; print -e te" | append-test $temp $suite test)
-    let suite = ("print aeo; print -e aee" | append-test $temp $suite ae --type after-each)
-    let suite = ("print aao; print -e aae" | append-test $temp $suite aa --type after-all)
+    let suite = ("print bao; print --stderr bao" | append-test $temp $suite ba --type before-all)
+    let suite = ("print beo; print --stderr beo" | append-test $temp $suite be --type before-each)
+    let suite = ("print to; print --stderr te" | append-test $temp $suite test)
+    let suite = ("print aeo; print --stderr aee" | append-test $temp $suite ae --type after-each)
+    let suite = ("print aao; print --stderr aae" | append-test $temp $suite aa --type after-all)
     let results = [$suite] | test-run $context
 
     assert equal $results [

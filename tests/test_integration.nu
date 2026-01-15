@@ -16,7 +16,7 @@ def setup []: nothing -> record {
     }
 }
 
-def setup-tests [temp: string] -> nothing
+def setup-tests [temp: string] -> null
     let test_file_1 = $temp | path join test_1.nu
     let test_file_2 = $temp | path join test_2.nu
 

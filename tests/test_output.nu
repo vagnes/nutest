@@ -43,7 +43,7 @@ def nulls []: any -> any {
 }
 
 @test
-def numbers [] -> nothing
+def numbers [] -> null
     let code = { print 1 }
     let output = $in | run $code
     assert equal $output [
@@ -72,7 +72,7 @@ def strings [] -> recordings [] {
 }
 
 @test
-def lists [] -> nothing
+def lists [] -> null
     let code = { print [] }
     let output = $in | run $code
     assert equal $output [

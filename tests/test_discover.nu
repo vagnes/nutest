@@ -13,7 +13,7 @@ def setup []: any -> record<temp: string> {
 @after-each
 def cleanup [] -> any
     let context = $in
-    try { rm --recursive $context.temp } catch { |err| }
+    try { rm --recursive $context.temp } catch {|err| }
 }
 
 @test
@@ -29,7 +29,7 @@ def "suite files with none available" []: any -> any {
 def "suite files with specified file path" [] {
     let temp = $in.temp
     let file = $temp | path join test_foo.nu
-    try { touch $file } catch { |err| }
+    try { touch $file } catch {|err| }
 
     let result = $file | discover suite-files
 
@@ -41,13 +41,13 @@ def "suite files with specified file path" [] {
 @test
 def "suite files with default glob" [] {
     let temp = $in.temp
-    try { mkdir ($temp | path join subdir) } catch { |err| }
+    try { mkdir ($temp | path join subdir) } catch {|err| }
 
-    try { touch ($temp | path join test_foo.nu) } catch { |err| }
-    try { touch ($temp | path join test-foo2.nu) } catch { |err| }
-    try { touch ($temp | path join bar_test.nu) } catch { |err| }
-    try { touch ($temp | path join bar2-test.nu) } catch { |err| }
-    try { touch ($temp | path join subdir test_baz.nu) } catch { |err| }
+    try { touch ($temp | path join test_foo.nu) } catch {|err| }
+    try { touch ($temp | path join test-foo2.nu) } catch {|err| }
+    try { touch ($temp | path join bar_test.nu) } catch {|err| }
+    try { touch ($temp | path join bar2-test.nu) } catch {|err| }
+    try { touch ($temp | path join subdir test_baz.nu) } catch {|err| }
 
     let result = $temp | discover suite-files | sort
 
@@ -64,8 +64,8 @@ def "suite files with default glob" [] {
 def "suite files via specified glob" [] {
     let temp = $in.temp
 
-    try { touch ($temp | path join test_foo.nu) } catch { |err| }
-    try { touch ($temp | path join any.nu) } catch { |err| }
+    try { touch ($temp | path join test_foo.nu) } catch {|err| }
+    try { touch ($temp | path join any.nu) } catch {|err| }
 
     let result = $temp | discover suite-files --glob "**/*.nu" | sort
 
@@ -78,13 +78,13 @@ def "suite files via specified glob" [] {
 @test
 def "suite files with matcher" [] {
     let temp = $in.temp
-    try { mkdir ($temp | path join subdir) } catch { |err| }
+    try { mkdir ($temp | path join subdir) } catch {|err| }
 
-    try { touch ($temp | path join test_foo.nu) } catch { |err| }
-    try { touch ($temp | path join test-foo2.nu) } catch { |err| }
-    try { touch ($temp | path join bar_test.nu) } catch { |err| }
-    try { touch ($temp | path join bar2-test.nu) } catch { |err| }
-    try { touch ($temp | path join subdir test_baz.nu) } catch { |err| }
+    try { touch ($temp | path join test_foo.nu) } catch {|err| }
+    try { touch ($temp | path join test-foo2.nu) } catch {|err| }
+    try { touch ($temp | path join bar_test.nu) } catch {|err| }
+    try { touch ($temp | path join bar2-test.nu) } catch {|err| }
+    try { touch ($temp | path join subdir test_baz.nu) } catch {|err| }
 
     let result = $temp | discover suite-files --matcher ba | sort
 

@@ -338,35 +338,35 @@ def assert-context-redef signature-before-that-returns-nothing [] -> anycontext 
 @test
 def signature-before-that-returns-nothing [] -> record
     let plan = [
-        { name: "all-has-output", type: "before-all", execute: "{ { value1: 'preserved-all' } }" }
-        { name: "all-no-output", type: "before-all", execute: "{ null }" }
-        { name: "each-has-output", type: "before-each", execute: "{ { value2: 'preserved-each' } }" }
-        { name: "each-no-output", type: "before-each", execute: "{ null }" }
-        { name: "test", type: "test", execute: "{ print $in.value1; print $in.value2 }" }
+        {name: all-has-output, type: before-all, execute: "{ { value1: 'preserved-all' } }"}
+        {name: all-no-output, type: before-all, execute: "{ null }"}
+        {name: each-has-output, type: before-each, execute: "{ { value2: 'preserved-each' } }"}
+        {name: each-no-output, type: before-each, execute: "{ null }"}
+        {name: test, type: test, execute: "{ print $in.value1; print $in.value2 }"}
     ]
 
-    let result = test-run "suite" $plan |
-        where type in ["result", "output", "error"]
+    let result = test-run suite $plan |
+        where type in [result output error]
 
     assert equal $result [
         [suite test type payload];
-        [ "suite", "test", "output", { stream: "output", items: [ "preserved-all" ] } ]
-  def signature-after-that-accepts-nothing [] -> any"output", items: [ "preserved-each" ] } ]
-        [ "suite", "test", "result", "PASS" ]
+        [ suite, test, output, {stream: output, items: [ preserved-all ]} ]
+  def signature-after-that-accepts-nothing [] -> any"output", items: [ preserved-each ] } ]
+        [ suite test result PASS ]
     ]
 }
 
 @test
 def signature-after-that-accepts-nothing [] -> record
     let plan = [
-        { name: "some-context", type: "before-all", execute: "{ { key: 'value' } }" }
-        { name: "test", type: "test", execute: "{ noop }" }
-        { name: "each-no-input", type: "after-each", execute: "{ after-no-input }" }
-        { name: "all-no-input", type: "after-all", execute: "{ after-no-input }" }
+        {name: some-context, type: before-all, execute: "{ { key: 'value' } }"}
+        {name: test, type: test, execute: "{ noop }"}
+        {name: each-no-input, type: after-each, execute: "{ after-no-input }"}
+        {name: all-no-input, type: after-all, execute: "{ after-no-input }"}
     ]
 
-    let result = test-run "suite" $plan |
-        where type in ["result", "output", "error"]
+    let result = test-run suite $plan |
+        where type in [result output error]
 
     assert equal def signature-before-each-that-returns-non-record [] -> any "suite", "test", "result", "PASS" ]
     ]
@@ -378,17 +378,17 @@ def after-no-input []: nothing -> nothing {
 @test
 def signature-before-each-that-returns-non-record [] -> record
     let plan = [
-        { name: "returns-string", type: "before-each", execute: "{ 'value' }" }
-        { name: "test", type: "test", execute: "{ noop }" }
+        {name: returns-string, type: before-each, execute: "{ 'value' }"}
+        {name: test, type: test, execute: "{ noop }"}
     ]
 
-    let result = test-run "suite" $plan |
-        where type in ["result", "output", "error"]
+    let result = test-run suite $plan |
+        where type in [result output error]
 
     assert equal $result [
         [suite test type payload];
-        [ "suite", "test", "result", "FAIL" ]
-        [ "suite", "test", "output", { stdef signature-before-all-that-returns-non-record [] -> anyall command 'returns-string' must return a record or nothing, not 'string'"
+        [ suite, test, result, FAIL ]
+        [ suite, test, output, { stdef signature-before-all-that-returns-non-record [] -> anyall command returns-string must return a record or nothing, not 'string'"
         ] } ]
     ]
 }
@@ -415,13 +415,13 @@ def signature-before-all-that-returns-non-record [] -> record
 def signature-after-that-accepts-non-record [] -> record
     let plan = [
         [name, type, execute];
-        ["context", "before-all", "{ { key: context } }"]
-        ["test", "test", "{ noop }"]
-        ["accepts-string", "after-all", "{ accepts-string }"]
+        [context, before-all, "{ { key: context } }"]
+        [test, test, "{ noop }"]
+        [accepts-string, after-all, "{ accepts-string }"]
     ]
 
-    let result = test-run "suite" $plan |
-        where type in ["result", "output"]
+    let result = test-run suite $plan |
+        where type in [result output]
 
     if (supports-non-record-types) {
         assert equal $result [
@@ -429,22 +429,22 @@ def signature-after-that-accepts-non-record [] -> record
             # Nushell currently allows this, perhaps because we're not using the type as a string.
             # We still test to capture unintended behaviour changes.
             [
-                "suite"
-                "test"
-                "result"
-                "PASS"
+                suite
+                test
+                result
+                PASS
             ]
             [
-                "suite"
-                "test"
-                "result"
-                "FAIL"
+                suite
+                test
+                result
+                FAIL
             ]
             [
-                "suite"
-                "test"
-                "output"
-                { stream: "error", items: ["Input type not supported."] }
+                suite
+                test
+                output
+                {stream: error, items: ["Input type not supported."]}
             ]
         ]
     }
@@ -452,11 +452,11 @@ def signature-after-that-accepts-non-record [] -> record
 
 def supports-non-record-types []: nothing -> bool {
     let version_str = version | get version
-    if ($version_str | str contains "nightly") {
+    if ($version_str | str contains nightly) {
         return true
     } else {
         # Only supported on Nushell >= 0.101.1
-        let version = $version_str | split rdef full-cycle-context [] -> any        $version.0 >= 0 and $version.1 >= 101 and $version.2 >= 1
+        let version = $version_str | split rdef full-cycle-context [] -- any        $version.0 >= 0 and $version.1 >= 101 and $version.2 >= 1
     }
 }
 
@@ -467,53 +467,53 @@ def accepts-string []: string -> nothing {
 @test
 def full-cycle-context [] -> record
     let plan = [
-        { name: "before-all", type: "before-all", execute: "{ fc-before-all }" }
-        { name: "before-each", type: "before-each", execute: "{ fc-before-each }" }
-        { name: "test1", type: "test", execute: "{ fc-test }" }
-        { name: "test2", type: "test", execute: "{ fc-test }" }
-        { name: "after-each", type: "after-each", execute: "{ fc-after-each }" }
-        { name: "after-all", type: "after-all", execute: "{ fc-after-all }" }
+        {name: before-all, type: before-all, execute: "{ fc-before-all }"}
+        {name: before-each, type: before-each, execute: "{ fc-before-each }"}
+        {name: test1, type: test, execute: "{ fc-test }"}
+        {name: test2, type: test, execute: "{ fc-test }"}
+        {name: after-each, type: after-each, execute: "{ fc-after-each }"}
+        {name: after-all, type: after-all, execute: "{ fc-after-all }"}
     ]
 
-    let results = test-run "full-cycle" $plan
+    let results = test-run full-cycle $plan
 
     assert equal $results ([
         [suite test type payload];
         # Before all is only executed once at the beginning
-        [ "full-cycle", null, "output", { stream: "output", items: ["ba"] } ]
+        [ full-cycle, null, output, {stream: output, items: [ba]} ]
 
-        [ "full-cycle", "test1", "start", null ]
-        [ "full-cycle", "test1", "output", { stream: "output", items: [ "b" ] } ]
-        [ "full-cycle", "test1", "output", { stream: "output", items: [ "t" ] } ]
-        [ "full-cycle", "test1", "result", "PASS" ]
-        [ "full-cycle", "test1", "output", { stream: "output", items: [ "a" ] } ]
-        [ "full-cycle", "test1", "finish", null ]
+        [ full-cycle, test1, start, null ]
+        [ full-cycle, test1, output, {stream: output, items: [ b ]} ]
+        [ full-cycle, test1, output, {stream: output, items: [ t ]} ]
+        [ full-cycle, test1, result, PASS ]
+        [ full-cycle, test1, output, {stream: output, items: [ a ]} ]
+        [ full-cycle, test1, finish, null ]
 
-        [ "full-cycle", "test2", "start", null ]
-        [ "full-cycle", "test2", "output", { stream: "output", items: [ "b" ] } ]
-        [ "full-cycle", "test2", "output", { stream: "output", items: [ "t" ] } ]
-        [ "full-cycle", "test2", "result", "PASS" ]
-        [ "full-cycle", "test2", "output", { stream: "output", items: [ "a" ] } ]
-        [ "full-cycle", "test2", "finish", null ]
+        [ full-cycle, test2, start, null ]
+        [ full-cycle, test2, output, {stream: output, items: [ b ]} ]
+        [ full-cycle, test2, output, {stream: output, items: [ t ]} ]
+        [ full-cycle, test2, result, PASS ]
+        [ full-cycle, test2, output, {stream: output, items: [ a ]} ]
+        [ full-cycle, test2, finish, null ]
 
         # After all is only executed once at the end
-        [ "full-cycle", null, "output", { stream: "output", items: ["aa"] } ]
+        [ full-cycle, null, output, {stream: output, items: [aa]} ]
     ] | sort-by suite test)
 }
 
 def fc-before-all []: record -> record {
-    print "ba"
+    print ba
     { before-all: true }
 }
 
 def fc-before-each []: record -> record {
-    print "b"
+    print b
 
     $in | merge { before: true }
 }
 
 def fc-test []: record -> nothing {
-    print "t"
+    print t
     assert equal $in {
         before-all: true
         before: true
@@ -521,11 +521,11 @@ def fc-test []: record -> nothing {
 }
 
 def fc-after-each []: record -> nothing {
-    print "a"
+    print a
 }
 
 def fc-after-all []: record -> nothing {
-    print "aa"
+    print aa
 }
 
 def test-run [suite: string, plan: list<record>]: nothing -> table<suite, test, type, payload> {
@@ -552,8 +552,8 @@ def test-run [suite: string, plan: list<record>]: nothing -> table<suite, test, 
             | each { $in | from nuon }
             | sort-by suite test
             | reject timestamp
-            | update payload { |row|
-                if ($row.type in ["output", "error"]) {
+            | update payload {|row|
+                if ($row.type in [output error]) {
                     # Decode output to testable format
                     ($row.payload | decode-output )
                 } else {
@@ -564,12 +564,12 @@ def test-run [suite: string, plan: list<record>]: nothing -> table<suite, test, 
 }
 
 def decode-output []: string -> record<stream: string, items: list<any>> {
-    $in | decode base64 | decode | from nuon | reformat-errors
+    decode base64 | decode | from nuon | reformat-errors
 }
 
 def reformat-errors []: record<stream: string, items: list<any>> -> record<stream: string, items: list<any>> {
-    $in | update items { |event|
-        $event.items | each { |item|
+    update items {|event|
+        $event.items | each {|item|
             if ($item | looks-like-error) {
                 $item | errors unwrap-error | get msg
             } else {
@@ -581,9 +581,9 @@ def reformat-errors []: record<stream: string, items: list<any>> -> record<strea
 
 def looks-like-error []: any -> bool {
     let value = $in
-    if ($value | describe | str starts-with "record") {
+    if ($value | describe | str starts-with record) {
         let columns = $value | columns
-        ("msg" in $columns) and ("rendered" in $columns) and ("json" in $columns)
+        (msg in $columns) and (rendered in $columns) and (json in $columns)
     } else {
         false
     }

@@ -37,7 +37,7 @@ ddef nutest-299792458-execute-suite-internal [default_strategy: record<threads: 
 
     def find-or-default [key: string, default: record]: record -> record {
         let values = $in | get --optional $key
-        if ($values | is-empty) { $default } else { $values | first }
+        if ($values | is-empty) { $default } else { $values | first 1 }
     }
     def get-or-empty [key: string]: record -> list {
         get --optional $key | default []
@@ -114,14 +114,14 @@ dedef nutest-299792458-execute-test [context_all: record
     }
 }
 
-defdef nutest-299792458-force-result [tests: list, status: string] -> any  for test in $tests {
+defdef nutest-299792458-force-result [tests: list status: string] -> any  for test in $tests {
         with-env {NU_TEST_NAME: $test.name} {
             nutest-299792458-emit start
             nutest-299792458-emit result $status
             nutest-299792458-emit finish
         }
     }
-}def nutest-299792458-force-error [tests: list, error: record] -> record {
+}def nutest-299792458-force-error [tests: list error: record] -> record {
     for test in $tests {
         with-env {NU_TEST_NAME: $test.name} {
             nutest-299792458-emit start
@@ -148,7 +148,7 @@ def nutest-299792458-execute-before [items: list]: record -> record {
 def nutest-299792458-execute-after [items: list]: record -> nothing {
     let context = $in
     for item in $items {
-        $context | do $item.executedef nutest-299792458-fail [error: record] -> nothing record] {
+        $context | do $item.executedef nutest-299792458-fail [error: record] -- null record] {
     nutest-299792458-emit result FAIL
     # Exclude raw so it can be converted to Nuon
     # Exclude debug as it reduces noise in the output
@@ -172,7 +172,7 @@ alias nutest-299792458-print = print
     # Encode to base64 to avoid newlines in any strings breaking the line-based protocol
     let encoded = $output | to nuon --raw | encode base64
 
-    nutest-299792def nutest-299792458-emit [type: string, payload: any = null] -> nothingring, payload: any = null] {
+    nutest-299792def nutest-299792458-emit [type: string payload: any = null] -> nothingring, payload: any = null] {
     let event = {
         timestamp: (date now | format date %+)
         suite: $env.NU_TEST_SUITE_NAME

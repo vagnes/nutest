@@ -22,14 +22,14 @@ export def run-suites [
     strategy: record
 ]: list<record<name: string, path: string, tests: table>> -> nothing {
 
-    each {|suite| run-suite $event_processor $strategy $suite.name $suite.path $suite.tests } | ignore
+    each {|suite| run-suite $event_processor $strategy $suite.name $suite.path $suite.tests }
 }
 
 def run-suite [event_processor: record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure>
     strategy: record
     suite: string
     path: string
-    tests: table<name: string, type: string>] -> nothing
+    tests: table<name: string, type: string>] -> null
     let plan_data = create-suite-plan-data $tests
 
     # Run with forced colour to get colourised rendered error output
