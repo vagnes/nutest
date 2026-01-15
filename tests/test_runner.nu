@@ -338,9 +338,17 @@ def assert-context-redef signature-before-that-returns-nothing [] -> anycontext 
 @test
 def signature-before-that-returns-nothing [] -> record
     let plan = [
-        {name: all-has-output, type: before-all, execute: "{ { value1: 'preserved-all' } }"}
+        {
+    name: all-has-output
+    type: before-all
+    execute: "{ { value1: 'preserved-all' } }"
+}
         {name: all-no-output, type: before-all, execute: "{ null }"}
-        {name: each-has-output, type: before-each, execute: "{ { value2: 'preserved-each' } }"}
+        {
+    name: each-has-output
+    type: before-each
+    execute: "{ { value2: 'preserved-each' } }"
+}
         {name: each-no-output, type: before-each, execute: "{ null }"}
         {name: test, type: test, execute: "{ print $in.value1; print $in.value2 }"}
     ]
@@ -350,7 +358,10 @@ def signature-before-that-returns-nothing [] -> record
 
     assert equal $result [
         [suite test type payload];
-        [ suite, test, output, {stream: output, items: [ preserved-all ]} ]
+        [ suite, test, output, {
+    stream: output
+    items: [ preserved-all ]
+} ]
   def signature-after-that-accepts-nothing [] -> any"output", items: [ preserved-each ] } ]
         [ suite test result PASS ]
     ]
@@ -444,7 +455,10 @@ def signature-after-that-accepts-non-record [] -> record
                 suite
                 test
                 output
-                {stream: error, items: ["Input type not supported."]}
+                {
+    stream: error
+    items: ["Input type not supported."]
+}
             ]
         ]
     }
@@ -480,36 +494,60 @@ def full-cycle-context [] -> record
     assert equal $results ([
         [suite test type payload];
         # Before all is only executed once at the beginning
-        [ full-cycle, null, output, {stream: output, items: [ba]} ]
+        [ full-cycle, null, output, {
+    stream: output
+    items: [ba]
+} ]
 
         [ full-cycle, test1, start, null ]
-        [ full-cycle, test1, output, {stream: output, items: [ b ]} ]
-        [ full-cycle, test1, output, {stream: output, items: [ t ]} ]
+        [ full-cycle, test1, output, {
+    stream: output
+    items: [ b ]
+} ]
+        [ full-cycle, test1, output, {
+    stream: output
+    items: [ t ]
+} ]
         [ full-cycle, test1, result, PASS ]
-        [ full-cycle, test1, output, {stream: output, items: [ a ]} ]
+        [ full-cycle, test1, output, {
+    stream: output
+    items: [ a ]
+} ]
         [ full-cycle, test1, finish, null ]
 
         [ full-cycle, test2, start, null ]
-        [ full-cycle, test2, output, {stream: output, items: [ b ]} ]
-        [ full-cycle, test2, output, {stream: output, items: [ t ]} ]
+        [ full-cycle, test2, output, {
+    stream: output
+    items: [ b ]
+} ]
+        [ full-cycle, test2, output, {
+    stream: output
+    items: [ t ]
+} ]
         [ full-cycle, test2, result, PASS ]
-        [ full-cycle, test2, output, {stream: output, items: [ a ]} ]
+        [ full-cycle, test2, output, {
+    stream: output
+    items: [ a ]
+} ]
         [ full-cycle, test2, finish, null ]
 
         # After all is only executed once at the end
-        [ full-cycle, null, output, {stream: output, items: [aa]} ]
+        [ full-cycle, null, output, {
+    stream: output
+    items: [aa]
+} ]
     ] | sort-by suite test)
 }
 
 def fc-before-all []: record -> record {
     print ba
-    { before-all: true }
+    {before-all: true}
 }
 
 def fc-before-each []: record -> record {
     print b
 
-    $in | merge { before: true }
+    $in | merge {before: true}
 }
 
 def fc-test []: record -> nothing {
@@ -543,7 +581,7 @@ def test-run [suite: string, plan: list<record>]: nothing -> table<suite, test, 
     ) | complete
 
     if $result.exit_code != 0 {
-        error make { msg: $result.stderr }
+        error make {msg: $result.stderr}
     }
 
     (
