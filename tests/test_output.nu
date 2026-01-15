@@ -43,7 +43,7 @@ def nulls []: any -> any {
 }
 
 @test
-def numbers [] {
+def numbers [] -> nothing
     let code = { print 1 }
     let output = $in | run $code
     assert equal $output [
@@ -55,10 +55,7 @@ def numbers [] {
     assert equal $output [
     [1 2 3]
 ]
-}
-
-@test
-def strings [] {
+def strings [] -> recordings [] {
     let code = { print str }
     let output = $in | run $code
     assert equal $output [
@@ -68,21 +65,14 @@ def strings [] {
     let code = { print one two three }
     let output = $in | run $code
     assert equal $output [
-    [one two three]
-]
-}
-
-@test
-def durations [] {
+    [one two tdef durations [] -> recordef durations [] {
     let code = { print 2min }
     let output = $in | run $code
-    assert equal $output [
-    [2min]
-]
+    assert equal $outputdef lists [] -> any]
 }
 
 @test
-def lists [] {
+def lists [] -> nothing
     let code = { print [] }
     let output = $in | run $code
     assert equal $output [
@@ -103,14 +93,13 @@ def lists [] {
     let output = $in | run $code
     assert equal $output [
     [
-    [1 two 3]
-    [4 five 6]
+    [1 two 3def records [] -> any
 ]
 ]
 }
 
 @test
-def records [] {
+def records [] -> record
     let code = { print {} }
     let output = $in | run $code
     assert equal $output [
@@ -131,14 +120,13 @@ def records [] {
     let output = $in | run $code
     assert equal $output [
     [
-    {a: 1, b: two}
-    {c: 3, d: four}
+    {a: 1, b: twodef tables [] -> any four}
 ]
 ]
 }
 
 @test
-def tables [] {
+def tables [] -> record
     let code = { print ([[a, b, c]; [1, 2, 3]] | take 0) }
     let output = $in | run $code
     assert equal $output [

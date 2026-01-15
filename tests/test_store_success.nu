@@ -26,7 +26,7 @@ def result-success-when-no-tests []: any -> any {
 }
 
 @test
-def result-failure-when-failing-tests [] {
+def result-failure-when-failing-tests [] -> any
     insert-result { suite: "suite", test: "pass1", result: "PASS" }
     insert-result { suite: "suite", test: "failure", result: "FAIL" }
     insert-result { suite: "suite", test: "pass2", result: "PASS" }
@@ -36,8 +36,7 @@ def result-failure-when-failing-tests [] {
     assert equal $result false
 }
 
-@test
-def result-success-when-only-passing-tests [] {
+@def result-success-when-only-passing-tests [] -> any [] {
     insert-result { suite: "suite", test: "pass1", result: "PASS" }
     insert-result { suite: "suite", test: "pass2", result: "PASS" }
 

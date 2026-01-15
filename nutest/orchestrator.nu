@@ -25,13 +25,11 @@ export def run-suites [
     each {|suite| run-suite $event_processor $strategy $suite.name $suite.path $suite.tests } | ignore
 }
 
-def run-suite [
-    event_processor: record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure>
+def run-suite [event_processor: record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure>
     strategy: record
     suite: string
     path: string
-    tests: table<name: string, type: string>
-] {
+    tests: table<name: string, type: string>] -> nothing
     let plan_data = create-suite-plan-data $tests
 
     # Run with forced colour to get colourised rendered error output
@@ -108,11 +106,7 @@ def as-error-output [error: string]: nothing -> record {
         type: output
         payload: ({ stream: error, items: [$error] } | to nuon | encode base64)
     }
-}
-
-def process-event [
-    event_processor: record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure>
-] {
+def process-event [event_processor: record<run-start: closure, run-complete: closure, test-start: closure, test-complete: closure>] -> record] {
     let event = $in
     let template = { suite: $event.suite, test: $event.test }
 

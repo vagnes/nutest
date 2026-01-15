@@ -3,7 +3,7 @@ use std/testing *
 source ../../nutest/report/report_junit.nu
 
 @test
-def "count when no tests" [] {
+def "count when no tests" []: any -> any {
     let data = []
 
     let result = $data | count
@@ -29,10 +29,10 @@ def "count with suites of all states" [] {
         {suite: suite2, test: test2B, result: SKIP}
         {suite: suite2, test: test2C, result: SKIP}
         {suite: suite2, test: test2D, result: PASS}
-        { suite: suite2, test: test2E, result: PASS }
-        { suite: suite2, test: test2F, result: FAIL }
+        {suite: suite2, test: test2E, result: PASS}
+        {suite: suite2, test: test2F, result: FAIL}
 
-        { suite: suite3, test: test3A, result: PASS }
+        {suite: suite3, test: test3A, result: PASS}
     ]
 
     assert equal ($data | count) {
@@ -60,7 +60,12 @@ def "count with suites of all states" [] {
 
 @test
 def "testcase pass" [] {
-    let data = { suite: suite, test: test, result: PASS, output: [] }
+    let data = {
+    suite: suite
+    test: test
+    result: PASS
+    output: []
+}
 
     let result = $data | testcase | to xml --self-closed
 
@@ -71,7 +76,12 @@ def "testcase pass" [] {
 
 @test
 def "testcase fail" [] {
-    let data = { suite: suite, test: test, result: FAIL, output: [] }
+    let data = {
+    suite: suite
+    test: test
+    result: FAIL
+    output: []
+}
 
     let result = $data | testcase | to xml --self-closed
 
@@ -84,7 +94,12 @@ def "testcase fail" [] {
 
 @test
 def "testcase skip" [] {
-    let data = { suite: suite, test: test, result: SKIP, output: [] }
+    let data = {
+    suite: suite
+    test: test
+    result: SKIP
+    output: []
+}
 
     let result = $data | testcase | to xml --self-closed
 

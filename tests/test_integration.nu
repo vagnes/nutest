@@ -16,7 +16,7 @@ def setup []: nothing -> record {
     }
 }
 
-def setup-tests [temp: string] {
+def setup-tests [temp: string] -> nothing
     let test_file_1 = $temp | path join test_1.nu
     let test_file_2 = $temp | path join test_2.nu
 
@@ -40,8 +40,7 @@ def setup-tests [temp: string] {
     " | save $test_file_2
 }
 
-@after-each
-def cleanup [] {
+@afdef cleanup [] -> recordanup [] {
     let context = $in
     rm --recursive $context.temp
 }
@@ -76,12 +75,7 @@ def with-default-table-options []: any -> any {
     test: test_qux
     result: SKIP
     output: []
-}
-    ]
-}
-
-@test
-def with-different-returns [] {
+def with-different-returns [] -> recordrent-returns [] {
     let temp = $in.temp
 
     let results = test-run $"run-tests --path '($temp)' --returns summary"
@@ -90,12 +84,7 @@ def with-different-returns [] {
         total: 4
         passed: 3
         failed: 0
-        skipped: 1
-    }
-}
-
-@test
-def with-specific-file [] {
+        sdef with-specific-file [] -> recordf with-specific-file [] {
     let temp = $in.temp
     let path = $temp | path join test_2.nu
 
@@ -111,14 +100,7 @@ def with-specific-file [] {
         {
     suite: test_2
     test: test_qux
-    result: SKIP
-    output: []
-}
-    ]
-}
-
-@test
-def with-matching-suite-and-test [] {
+    result: SKIPdef with-matching-suite-and-test [] -> recordwith-matching-suite-and-test [] {
     let temp = $in.temp
 
     let results = test-run $"run-tests --path '($temp)' --returns table --match-suites _1 --match-tests test_ba[rz]"
@@ -175,11 +157,7 @@ def "fail option exit code on failing tests" [] {
 
     let output = $result.stdout | ansi strip
     assert ($output =~ "test_3[ │]+test_quux[ │]+FAIL[ │]+") "Tests are output"
-    assert equal $result.exit_code 1
-}
-
-@test
-def useful-error-on-non-existent-path [] {
+    adef useful-error-on-non-existent-path [] -> recordef useful-error-on-non-existent-path [] {
     let missing_path = [non existant path] | path join
     let result = (
         ^$nu.current-exe
@@ -191,12 +169,11 @@ def useful-error-on-non-existent-path [] {
     ) | complete
 
     assert str contains $result.stderr $"Path doesn't exist: "
-    assert str contains $result.stderr $missing_path
-    assert equal $result.exit_code 1
+    assert str contains $result.stderr $missing_padef with-summary-returns [] -> anyxit_code 1
 }
 
 @test
-def with-summary-returns [] {
+def with-summary-returns [] -> nothing
     let temp = $in.temp
     let test_file_3 = $temp | path join test_3.nu
     "
@@ -212,14 +189,12 @@ def with-summary-returns [] {
 
     assert equal $results {
         total: 6
-        passed: 3
-        failed: 1
-        skipped: 2
+        passed: def list-tests-as-table [] -> anyskipped: 2
     }
 }
 
 @test
-def list-tests-as-table [] {
+def list-tests-as-table [] -> record
     let temp = $in.temp
 
     "
@@ -298,12 +273,11 @@ def "terminal display with rendered error" [] {
         | ansi strip
 
     assert str contains $results "a decorated error"
-    assert str contains $results "happened here"
-    assert str contains $results "some help"
+    assert str contains $results "happened hdef with-junit-report [] -> anyns $results "some help"
 }
 
 @test
-def with-junit-report [] {
+def with-junit-report [] -> nothing
     let temp = $in.temp
     let test_file_3 = $temp | path join test_3.nu
     "
@@ -335,13 +309,11 @@ def with-junit-report [] {
     </testcase>
     <testcase name="test_quux" classname="test_3">
       <failure type="Error" message=""></failure>
-    </testcase>
-  </testsuite>
-</testsuites>
+    </testdef test-run [command: string] -> anys>
 ' | strip-xml-whitespace)
 }
 
-def test-run [command: string] {
+def test-run [command: string] -> any
     let result = (
         ^$nu.current-exe
             --no-config-file

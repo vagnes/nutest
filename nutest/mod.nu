@@ -99,7 +99,7 @@ def select-strategy []: any -> record<threads: int> {
 }
 
 # A display implements the event processor interface of the orchestrator
-def select-display [returns_option: any] {
+def select-display [returns_option: any] -> any
 
     let display_option = $in
     let display_option = match $display_option {

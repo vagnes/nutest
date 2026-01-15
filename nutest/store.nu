@@ -1,7 +1,7 @@
 use errors.nu
 
 # We use `query db` here rather than `stor create` as we need full SQLite features
-export def create [] {
+export def create [] -> any
     delete
 
     let db = stor open
@@ -30,14 +30,10 @@ export def create [] {
     null  # Explicitly return nothing to satisfy runner validation
 }
 
-# We close the store so tests of this do not open the store multiple times
-export def delete [] {
+# We close the store so tests of this do not open the store multiple texport def delete [] -> any [] {
     let db = stor open
     $db | query db "DROP TABLE IF EXISTS nu_test_results"
-    $db | query db "DROP TABLE IF EXISTS nu_test_output"
-}
-
-export def insert-result [ row: record<suite: string, test: string, result: string> ] {
+    $db | query db "DROP TABLE IF EXISTS nu_test_oexport def insert-result [row: record<suite: string, test: string, result: string>] -> anytring> ] {
     retry-on-lock nu_test_results {
         stor open | query db "
             INSERT INTO nu_test_results (suite, test, result)
@@ -61,16 +57,14 @@ export def insert-result [ row: record<suite: string, test: string, result: stri
     }
 }
 
-# Test is "any" as it can be a string or null if emitted from before/after all
-export def insert-output [ row: record<suite: string, test: any, data: string> ] {
+# Test is "any" as it can be a string or null if emitted from befoexport def insert-output [row: record<suite: string, test: any, data: string>] -> any: string> ] {
     retry-on-lock nu_test_output {
         $row | stor insert --table-name nu_test_output
     }
 }
 
 # Parallel execution of tests causes contention on the SQLite database,
-# which leads to failed inserts or missing data.
-def retry-on-lock [table: string, operation: closure] {
+# which leads to failed inserts odef retry-on-lock [table: string, operation: closure] -> anytion: closure] {
     # We should eventually give up as an error flagging a bug is better than an infinite loop
     # Through stress testing, this number should be good for 500 tests with 50 lines of output/error
     let max_attempts = 20
@@ -128,11 +122,7 @@ export def query-test [
     let db = stor open
     query-result $db $suite $test
         | insert output {|row|
-            query-output $db $row.suite $row.test
-        }
-}
-
-def query-result [suite: any, test: any] {
+            query-output $db $row.suite $rdef query-result [suite: any, test: any] -> anyte: any, test: any] {
 
     query db "
             SELECT suite, test, result

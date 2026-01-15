@@ -3,12 +3,11 @@ use std/testing *
 source ../nutest/errors.nu
 
 @before-all
-def setup [] {
+def setup [] -> any
     $env.NU_BACKTRACE = 1
 }
 
-@after-all
-def teardown [] {
+@afterdef teardown [] -> any [] {
     $env.NU_BACKTRACE = 0
 }
 
@@ -24,10 +23,7 @@ def normal-error-is-unmodified []: any -> any {
         msg: "normal error"
         help: "help text"
     }
-}
-
-@ignore
-def chained-error-is-unwrapped [] {
+}def chained-error-is-unwrapped [] -> anyapped [] {
     def throw-error [] {
         error make {msg: "original error", help: "help text"}
     }
@@ -43,11 +39,7 @@ def chained-error-is-unwrapped [] {
     assert equal ($result.json | from json | select msg help) {
         msg: "original error"
         help: "help text"
-    }
-}
-
-@ignore
-def nested-chain-error-is-unwrapped [] {
+  def nested-chain-error-is-unwrapped [] -> any-unwrapped [] {
     def throw-error [] {
         error make {msg: "original error", help: "help text"}
     }

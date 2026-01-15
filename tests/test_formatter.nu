@@ -34,7 +34,7 @@ def data-and-metadata []: any -> any {
 }
 
 @test
-def data-only [] {
+def data-only [] -> record
     let formatter = formatter unformatted
 
     assert equal ([] | do $formatter) []
@@ -51,10 +51,7 @@ def data-only [] {
     ] | do $formatter) [
         1 2 3 a b c
     ]
-}
-
-@test
-def pretty-with-theme-none [] {
+}def pretty-with-theme-none [] -> recordone [] {
     let formatter = formatter pretty (theme none) compact
 
     assert equal ([] | do $formatter) ""
@@ -76,12 +73,7 @@ def pretty-with-theme-none [] {
     items: [a b c]
 }
     ] | do $formatter) (
-        "1\n2\n3\na\nb\nc"
-    )
-}
-
-@test
-def pretty-with-theme-standard [] {
+        "1\n2\n3\na\nb\nc"def pretty-with-theme-standard [] -> recordme-standard [] {
     let formatter = formatter pretty (theme standard) compact
 
     assert equal ([] | do $formatter) ""

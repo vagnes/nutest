@@ -63,7 +63,7 @@ def retry-on-table-lock-fails []: any -> any {
 }
 
 @test
-def retry-on-table-lock-eventually-succeeds [] {
+def retry-on-table-lock-eventually-succeeds [] -> any
     let context = $in
     $context | initialise-attempts-file
     let table = "test_table"
@@ -83,8 +83,7 @@ def retry-on-table-lock-eventually-succeeds [] {
     assert equal ($context | attempt-count) 5
 }
 
-@test
-def retry-on-table-lock-throws-other-errors [] {
+@def retry-on-table-lock-throws-other-errors [] -> any [] {
     let context = $in
     $context | initialise-attempts-file
     let table = "test_table"
@@ -101,10 +100,7 @@ def retry-on-table-lock-throws-other-errors [] {
         let result = $e | errors unwrap-error | get json | from json | get msg
         assert equal $result "some other error"
     }
-    assert equal ($context | attempt-count) 1
-}
-
-def throw-database-locked-error [table: string] {
+    assert equal ($context | attempt-codef throw-database-locked-error [table: string] -> any string] {
     error make {
         msg: "database error"
         label: {

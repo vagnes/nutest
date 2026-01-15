@@ -123,48 +123,32 @@ def parse-file-direct [file: path]: nothing -> list<record<name: string, attribu
         if ($line | is-not-empty) and ($line =~ '^\s*@') {
             # Try to extract attribute name with brackets @[test]
             let attr_match_brackets = $line | parse --regex '^\s*@\[([a-zA-Z_-]+)\]'
-            if ($attr_match_brackets | is-not-empty) {
-                let attr = $attr_match_brackets.capture0.0
-
+            
+            let attr = if ($attr_match_brackets | is-not-empty) {
+                $attr_match_brackets.capture0.0
+            } else {
+                # Try to extract attribute name without brackets @test
+                let attr_match = $line | parse --regex '^\s*@([a-zA-Z_-]+)'
+                if ($attr_match | is-not-empty) {
+                    $attr_match.capture0.0
+                } else {
+                    ""
+                }
+            }
+            
+            if not ($attr | is-empty) {
                 # Look for the function definition on the next line(s)
                 let func_line = $lines | get --optional ($i + 1)
                 if ($func_line | is-not-empty) and ($func_line =~ '^\s*def\s+') {
                     let func_match = $func_line | parse --regex '^\s*def\s+([a-zA-Z_][a-zA-Z0-9_-]*|"[^"]+")'
                     if ($func_match | is-not-empty) {
                         let func_name = $func_match.capture0.0
-
-                        # Check for description tag in comments
                         let desc = extract-description $lines $i
-
                         $results ++= [{
                             name: $func_name
                             attributes: [$attr]
                             description: $desc
                         }]
-                    }
-                }
-            } else {
-                # Try to extract attribute name without brackets @test
-                let attr_match = $line | parse --regex '^\s*@([a-zA-Z_-]+)'
-                if ($attr_match | is-not-empty) {
-                    let attr = $attr_match.capture0.0
-
-                    # Look for the function definition on the next line(s)
-                    let func_line = $lines | get --optional ($i + 1)
-                    if ($func_line | is-not-empty) and ($func_line =~ '^\s*def\s+') {
-                        let func_match = $func_line | parse --regex '^\s*def\s+([a-zA-Z_][a-zA-Z0-9_-]*|"[^"]+")'
-                        if ($func_match | is-not-empty) {
-                            let func_name = $func_match.capture0.0
-
-                            # Check for description tag in comments
-                            let desc = extract-description $lines $i
-
-                            $results ++= [{
-                                name: $func_name
-                                attributes: [$attr]
-                                description: $desc
-                            }]
-                        }
                     }
                 }
             }

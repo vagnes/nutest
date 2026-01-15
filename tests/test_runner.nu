@@ -9,7 +9,7 @@ const warning_message = "Don't Panic"
 const failure_message = "No tea"
 
 @test
-def execute-plan-empty [] {
+def execute-plan-empty [] -> any
     let plan = []
 
     let results = test-run empty-suite $plan
@@ -17,8 +17,7 @@ def execute-plan-empty [] {
     assert equal $results []
 }
 
-@test
-def execute-plan-test [] {
+@def execute-plan-test [] -> record [] {
     let plan = [
         { name: testing, type: test, execute: "{ success }" }
     ]
@@ -31,11 +30,7 @@ def execute-plan-test [] {
         [ suite, testing, output, { stream: output, items: [$success_message] } ]
         [ suite, testing, result, PASS ]
         [ suite, testing, finish, null ]
-    ]
-}
-
-@test
-def execute-plan-with-error [] {
+  def execute-plan-with-error [] -> recordth-error [] {
     let plan = [
         { name: testing, type: test, execute: "{ failure }" }
     ]
@@ -47,12 +42,7 @@ def execute-plan-with-error [] {
         [ suite, testing, start, null ]
         [ suite, testing, result, FAIL ]
         [ suite, testing, output, { stream: error, items: [$failure_message] } ]
-        [ suite, testing, finish, null ]
-    ]
-}
-
-@test
-def execute-plan-tests [] {
+        [ suite, testing, finish, ndef execute-plan-tests [] -> recordecute-plan-tests [] {
     let plan = [
         { name: test_success, type: test, execute: "{ success }" }
         { name: test_success_warning, type: test, execute: "{ warning; success }" }
@@ -79,76 +69,60 @@ def execute-plan-tests [] {
         [ suite, test_failure, finish, null ]
         [ suite, test_half_failure, start, null ]
         [ suite, test_half_failure, output, { stream: output, items: [$success_message] } ]
-        [ suite, test_half_failure, output, { stream: "error", items: [$warning_message] } ]
-        [ "suite", "test_half_failure", "result", "FAIL" ]
-        [ "suite", "test_half_failure", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test_half_failure", "finish", null ]
-    ] | sort-by suite test)
-}
-
-@test
-def execute-test-types-basic [] {
+        [ suite, test_half_failure, output, { stream: error, items: [$warning_message] } ]
+        [ suite, test_half_failure, result, FAIL ]
+        [ suite, test_half_failure, output, { stream: error, items: [$failure_message] } ]
+        [ suite, test_half_failure, finish, null ]
+    ] | def execute-test-types-basic [] -> recordexecute-test-types-basic [] {
     let plan = [
-        { name: "bool", type: "test", execute: "{ print true }" }
-        { name: "datetime", type: "test", execute: "{ print 2022-02-02T14:30:00+05:00 }" }
-        { name: "duration", type: "test", execute: "{ print 2min }" }
-        { name: "filesize", type: "test", execute: "{ print 8KiB }" }
-        { name: "float", type: "test", execute: "{ print 0.5 }" }
-        { name: "int", type: "test", execute: "{ print 1 }" }
+        { name: bool, type: test, execute: "{ print true }" }
+        { name: datetime, type: test, execute: "{ print 2022-02-02T14:30:00+05:00 }" }
+        { name: duration, type: test, execute: "{ print 2min }" }
+        { name: filesize, type: test, execute: "{ print 8KiB }" }
+        { name: float, type: test, execute: "{ print 0.5 }" }
+        { name: int, type: test, execute: "{ print 1 }" }
     ]
 
-    let results = test-run "types" $plan | where type == "output"
+    let results = test-run types $plan | where type == output
 
     assert equal $results [
         [suite test type payload];
-        [ "types", "bool", "output", { stream: "output", items: [true] } ]
-        [ "types", "datetime", "output", { stream: "output", items: [2022-02-02T14:30:00+05:00] } ]
-        [ "types", "duration", "output", { stream: "output", items: [2min] } ]
-        [ "types", "filesize", "output", { stream: "output", items: [8KiB] } ]
-        [ "types", "float", "output", { stream: "output", items: [0.5] } ]
-        [ "types", "int", "output", { stream: "output", items: [1] } ]
-    ]
-}
-
-@test
-def execute-test-types-structured [] {
+        [ types, bool, output, { stream: output, items: [true] } ]
+        [ types, datetime, output, { stream: output, items: [2022-02-02T14:30:00+05:00] } ]
+        [ types, duration, output, { stream: output, items: [2min] } ]
+        [ types, filesize, output, { stream: output, items: [8KiB] } ]
+        [ types, float, output, { stream: output, items: [0.5] } ]
+        [ types, int, output, { stream: odef execute-test-types-structured [] -> recordef execute-test-types-structured [] {
     let plan = [
-        { name: "list", type: "test", execute: "{ print [1, '2', 3min] }" }
-        { name: "record", type: "test", execute: "{ print { a: 1, b: 2 } }" }
+        { name: list, type: test, execute: "{ print [1, '2', 3min] }" }
+        { name: record, type: test, execute: "{ print { a: 1, b: 2 } }" }
     ]
 
-    let results = test-run "types" $plan | where type in ["result", "output", "error"]
+    let results = test-run types $plan | where type in [result, output, error]
 
     assert equal $results [
         [suite test type payload];
-        [ "types", "list", "output", { stream: "output", items: [[1, "2", 3min]] } ]
-        [ "types", "list", "result", "PASS" ]
-        [ "types", "record", "output", { stream: "output", items: [{a: 1, b: 2}] } ]
-        [ "types", "record", "result", "PASS" ]
-    ]
-}
-
-@test
-def execute-test-with-multiple-lines [] {
+        [ types, list, output, { stream: output, items: [[1, "2", 3min]] } ]
+        [ types, list, result, PASS ]
+        [ types, record, output, { stream: output, items: [{a: 1, b: 2}] } ]
+        [ def execute-test-with-multiple-lines [] -> recordest
+def execute-test-with-multiple-lines [] -> record
     let plan = [
-        { name: "multi-print", type: "test", execute: "{ print 'one'; print 'two' }" }
-        { name: "print-rest", type: "test", execute: "{ print 'one' 'two' }" }
-        { name: "with-newlines", type: "test", execute: "{ print 'one\ntwo' }" }
+        { name: multi-print, type: test, execute: "{ print 'one'; print 'two' }" }
+        { name: print-rest, type: test, execute: "{ print 'one' 'two' }" }
+        { name: with-newlines, type: test, execute: "{ print 'one\ntwo' }" }
     ]
 
-    let results = test-run "suite" $plan | where type == "output"
+    let results = test-run suite $plan | where type == output
 
     assert equal $results [
         [suite test type payload];
-        [ "suite", "multi-print", "output", { stream: "output", items: ["one"] } ]
-        [ "suite", "multi-print", "output", { stream: "output", items: ["two"] } ]
-        [ "suite", "print-rest", "output", { stream: "output", items: ["one", "two"] } ]
-        [ "suite", "with-newlines", "output", { stream: "output", items: ["one\ntwo"] } ]
-    ]
-}
-
+        [ suite, multi-print, output, { stream: output, items: [one] } ]
+        [ suite, multi-print, output, { stream: output, items: [two] } ]
+        [ suite, print-rest, output, { stream: output, items: [one, two] } ]
+        [ suite, with-newlines, "output", { stredef execute-test-with-multiple-lines-deep [] -> record
 @test
-def execute-test-with-multiple-lines-deep [] {
+def execute-test-with-multiple-lines-deep [] -> record
     let plan = [
         { name: "list", type: "test", execute: "{ print [1, '2\n3', 4min] }" }
         { name: "record", type: "test", execute: "{ print { a: 1, b: '2\n3' } }" }
@@ -161,12 +135,12 @@ def execute-test-with-multiple-lines-deep [] {
         [ "types", "list", "output", { stream: "output", items: [[1, "2\n3", 4min]] } ]
         [ "types", "list", "result", "PASS" ]
         [ "types", "record", "output", { stream: "output", items: [{a: 1, b: "2\n3"}] } ]
-        [ "types", "record", "result", "PASS" ]
+  def execute-before-each-test [] -> anyt", "PASS" ]
     ]
 }
 
 @test
-def execute-before-each-test [] {
+def execute-before-each-test [] -> record
     let plan = [
         { name: "test", type: "test", execute: "{ assert-context-received }" }
         { name: "before-each", type: "before-each", execute: "{ get-context }" }
@@ -179,12 +153,12 @@ def execute-before-each-test [] {
         [ "before-suite", "test", "start", null ]
         [ "before-suite", "test", "output", { stream: "output", items: ["What do you get if you multiply six by nine?", 42] } ]
         [ "before-suite", "test", "result", "PASS" ]
-        [ "before-suite", "test", "finish", null ]
+def execute-after-each-test [] -> any, "finish", null ]
     ]
 }
 
 @test
-def execute-after-each-test [] {
+def execute-after-each-test [] -> record
     let plan = [
         { name: "test", type: "test", execute: "{ assert-context-received }" }
         { name: "setup", type: "before-each", execute: "{ get-context }" }
@@ -198,13 +172,12 @@ def execute-after-each-test [] {
         [ "after-suite", "test", "start", null ]
         [ "after-suite", "test", "output", { stream: "output", items: ["What do you get if you multiply six by nine?", 42] } ]
         [ "after-suite", "test", "result", "PASS" ]
-        [ "after-suite", "test", "output", { stream: "output", items: ["What do you get if you multiply six by nine?", 42] } ]
-        [ "after-suite", "test", "finish", null ]
+        [ "after-suite", "test", "output", { stream: "output", items: ["What do you get if you multiply six by nine?", 42def execute-before-and-after-each-captures-output [] -> any]
     ]
 }
 
 @test
-def execute-before-and-after-each-captures-output [] {
+def execute-before-and-after-each-captures-output [] -> record
     let plan = [
         { name: "before-each", type: "before-each", execute: "{ success; get-context }" }
         { name: "test1", type: "test", execute: "{ noop }" }
@@ -226,12 +199,9 @@ def execute-before-and-after-each-captures-output [] {
         [ "suite", "test2", "result", "PASS" ]
         [ "suite", "test2", "output", { stream: "error", items: [$warning_message] } ]
         [ "suite", "test2", "finish", null ]
-    ]
-}
-
-# This kind output is not associated with tests by the runner
+ def execute-before-and-after-all-captures-output [] -> recordts by the runner
 @test
-def execute-before-and-after-all-captures-output [] {
+def execute-before-and-after-all-captures-output [] -> record
     let plan = [
         { name: "before-all", type: "before-all", execute: "{ print 1; print -e 2; get-context }" }
         { name: "test1", type: "test", execute: "{ print 3; print -e 4 }" }
@@ -257,12 +227,12 @@ def execute-before-and-after-all-captures-output [] {
         [ "suite", null, "output", { stream: "output", items: [1] } ]
         [ "suite", null, "output", { stream: "error", items: [2] } ]
         [ "suite", null, "output", { stream: "output", items: [7] } ]
-        [ "suite", null, "output", { stream: "error", items: [8] } ]
+ def execute-before-each-error-handling [] -> any "error", items: [8] } ]
      ]
 }
 
 @test
-def execute-before-each-error-handling [] {
+def execute-before-each-error-handling [] -> record
     let plan = [
         { name: "test", type: "test", execute: "{ noop }" }
         { name: "before-each", type: "before-each", execute: "{ failure }" }
@@ -274,13 +244,12 @@ def execute-before-each-error-handling [] {
         [suite test type payload];
         [ "suite", "test", "start", null ]
         [ "suite", "test", "result", "FAIL" ]
-        [ "suite", "test", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test", "finish", null ]
+        [ "suite", "test", "output", { stream: "error", def execute-after-each-error-handling [] -> anyuite", "test", "finish", null ]
     ]
 }
 
 @test
-def execute-after-each-error-handling [] {
+def execute-after-each-error-handling [] -> record
     let plan = [
         { name: "test", type: "test", execute: "{ noop }" }
         { name: "after-each", type: "after-each", execute: "{ failure }" }
@@ -293,13 +262,12 @@ def execute-after-each-error-handling [] {
         [ "suite", "test", "start", null ]
         [ "suite", "test", "result", "PASS" ] # The test passed
         [ "suite", "test", "result", "FAIL" ] # But after-each failed
-        [ "suite", "test", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test", "finish", null ]
+        [ "suite", "test", "output", { stream: "errdef execute-before-all-error-handling [] -> any [ "suite", "test", "finish", null ]
     ]
 }
 
 @test
-def execute-before-all-error-handling [] {
+def execute-before-all-error-handling [] -> record
     let plan = [
         { name: "test1", type: "test", execute: "{ noop }" }
         { name: "test2", type: "test", execute: "{ noop }" }
@@ -316,13 +284,12 @@ def execute-before-all-error-handling [] {
         [ "suite", "test1", "finish", null ]
         [ "suite", "test2", "start", null ]
         [ "suite", "test2", "result", "FAIL" ]
-        [ "suite", "test2", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test2", "finish", null ]
+        [ "suite", "test2", "output", { stream: def execute-after-all-error-handling [] -> any      [ "suite", "test2", "finish", null ]
     ]
 }
 
 @test
-def execute-after-all-error-handling [] {
+def execute-after-all-error-handling [] -> record
     let plan = [
         { name: "test1", type: "test", execute: "{ noop }" }
         { name: "test2", type: "test", execute: "{ noop }" }
@@ -346,41 +313,30 @@ def execute-after-all-error-handling [] {
         [ "suite", "test2", "finish", null ]
         [ "suite", "test2", "start", null ]
         [ "suite", "test2", "result", "FAIL" ]
-        [ "suite", "test2", "output", { stream: "error", items: [$failure_message] } ]
-        [ "suite", "test2", "finish", null ]
-    ]
+        [ "suite", "test2", "output",def noop [] -> andef success [] -> any$failure_message] } ]
+    def warning [] -> anytest2", "finish", null ]
+    def failure [] -> record {
 }
 
-def noop [] {
-}
-
-def success [] {
-    print $success_message
-}
-
-def warning [] {
+def success [] -> record
+    print $sucdef get-context [] -> recordwarning [] {
     print -e $warning_message
 }
 
-def failure [] {
-    error make { msg: $failure_message }
-}
-
-def get-context [] {
+def failure [] -> record
+    error make { msg: $failurdef assert-context-received [] -> record] {
     {
         question: "What do you get if you multiply six by nine?"
         answer: 42
     }
 }
 
-def assert-context-received [] {
-    let context = $in
-    print ($context | get question) ($context | get answer)
+def assert-context-redef signature-before-that-returns-nothing [] -> anycontext | get question) ($context | get answer)
     assert equal $context (get-context)
 }
 
 @test
-def signature-before-that-returns-nothing [] {
+def signature-before-that-returns-nothing [] -> record
     let plan = [
         { name: "all-has-output", type: "before-all", execute: "{ { value1: 'preserved-all' } }" }
         { name: "all-no-output", type: "before-all", execute: "{ null }" }
@@ -395,13 +351,13 @@ def signature-before-that-returns-nothing [] {
     assert equal $result [
         [suite test type payload];
         [ "suite", "test", "output", { stream: "output", items: [ "preserved-all" ] } ]
-        [ "suite", "test", "output", { stream: "output", items: [ "preserved-each" ] } ]
+  def signature-after-that-accepts-nothing [] -> any"output", items: [ "preserved-each" ] } ]
         [ "suite", "test", "result", "PASS" ]
     ]
 }
 
 @test
-def signature-after-that-accepts-nothing [] {
+def signature-after-that-accepts-nothing [] -> record
     let plan = [
         { name: "some-context", type: "before-all", execute: "{ { key: 'value' } }" }
         { name: "test", type: "test", execute: "{ noop }" }
@@ -412,9 +368,7 @@ def signature-after-that-accepts-nothing [] {
     let result = test-run "suite" $plan |
         where type in ["result", "output", "error"]
 
-    assert equal $result [
-        [suite test type payload];
-        [ "suite", "test", "result", "PASS" ]
+    assert equal def signature-before-each-that-returns-non-record [] -> any "suite", "test", "result", "PASS" ]
     ]
 }
 
@@ -422,7 +376,7 @@ def after-no-input []: nothing -> nothing {
 }
 
 @test
-def signature-before-each-that-returns-non-record [] {
+def signature-before-each-that-returns-non-record [] -> record
     let plan = [
         { name: "returns-string", type: "before-each", execute: "{ 'value' }" }
         { name: "test", type: "test", execute: "{ noop }" }
@@ -434,14 +388,13 @@ def signature-before-each-that-returns-non-record [] {
     assert equal $result [
         [suite test type payload];
         [ "suite", "test", "result", "FAIL" ]
-        [ "suite", "test", "output", { stream: "error", items: [
-            "The before-each/all command 'returns-string' must return a record or nothing, not 'string'"
+        [ "suite", "test", "output", { stdef signature-before-all-that-returns-non-record [] -> anyall command 'returns-string' must return a record or nothing, not 'string'"
         ] } ]
     ]
 }
 
 @test
-def signature-before-all-that-returns-non-record [] {
+def signature-before-all-that-returns-non-record [] -> record
     let plan = [
         { name: "returns-string", type: "before-all", execute: "{ 'value' }" }
         { name: "test", type: "test", execute: "{ noop }" }
@@ -453,14 +406,13 @@ def signature-before-all-that-returns-non-record [] {
     assert equal $result [
         [suite test type payload];
         [ "suite", "test", "result", "FAIL" ]
-        [ "suite", "test", "output", { stream: "error", items: [
-            "The before-each/all command 'returns-string' must return a record or nothing, not 'string'"
+        [ "suite", "test", "output",def signature-after-that-accepts-non-record [] -> anyfore-each/all command 'returns-string' must return a record or nothing, not 'string'"
         ] } ]
     ]
 }
 
 @test
-def signature-after-that-accepts-non-record [] {
+def signature-after-that-accepts-non-record [] -> record
     let plan = [
         [name, type, execute];
         ["context", "before-all", "{ { key: context } }"]
@@ -504,8 +456,7 @@ def supports-non-record-types []: nothing -> bool {
         return true
     } else {
         # Only supported on Nushell >= 0.101.1
-        let version = $version_str | split row '.' | each { into int }
-        $version.0 >= 0 and $version.1 >= 101 and $version.2 >= 1
+        let version = $version_str | split rdef full-cycle-context [] -> any        $version.0 >= 0 and $version.1 >= 101 and $version.2 >= 1
     }
 }
 
@@ -514,7 +465,7 @@ def accepts-string []: string -> nothing {
 }
 
 @test
-def full-cycle-context [] {
+def full-cycle-context [] -> record
     let plan = [
         { name: "before-all", type: "before-all", execute: "{ fc-before-all }" }
         { name: "before-each", type: "before-each", execute: "{ fc-before-each }" }

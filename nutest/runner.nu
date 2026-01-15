@@ -19,11 +19,9 @@
 
 # Note: The below commands all have a prefix to avoid possible conflicts with user test files.
 
-export def nutest-299792458-execute-suite [
-    default_strategy: record<threads: int>
+export def nutest-299792458-execute-suite [default_strategy: record<threads: int>
     suite: string
-    suite_data: table
-] {
+    suite_data: table] -> any
     # We reset the test name to avoid collisions around tests within tests
     with-env {NU_TEST_SUITE_NAME: $suite, NU_TEST_NAME: null} {
         nutest-299792458-execute-suite-internal $default_strategy $suite_data
@@ -33,11 +31,8 @@ export def nutest-299792458-execute-suite [
     null
 }
 
-def nutest-299792458-execute-suite-internal [
-    default_strategy: record<threads: int>
-    suite_data: table
-] {
-
+ddef nutest-299792458-execute-suite-internal [default_strategy: record<threads: int>
+    suite_data: table] -> any
     let plan = $suite_data | group-by type
 
     def find-or-default [key: string, default: record]: record -> record {
@@ -91,13 +86,10 @@ def nutest-299792458-execute-tests [
     }
 }
 
-def nutest-299792458-execute-test [
-    context_all: record
+dedef nutest-299792458-execute-test [context_all: record
     before_each: list
     after_each: list
-    test: record
-] {
-    let context = try {
+    test: record] -> any   let context = try {
         $context_all | nutest-299792458-execute-before $before_each
     } catch {|error|
         nutest-299792458-fail $error
@@ -122,17 +114,14 @@ def nutest-299792458-execute-test [
     }
 }
 
-def nutest-299792458-force-result [tests: list, status: string] {
-    for test in $tests {
+defdef nutest-299792458-force-result [tests: list, status: string] -> any  for test in $tests {
         with-env {NU_TEST_NAME: $test.name} {
             nutest-299792458-emit start
             nutest-299792458-emit result $status
             nutest-299792458-emit finish
         }
     }
-}
-
-def nutest-299792458-force-error [tests: list, error: record] {
+}def nutest-299792458-force-error [tests: list, error: record] -> record {
     for test in $tests {
         with-env {NU_TEST_NAME: $test.name} {
             nutest-299792458-emit start
@@ -159,11 +148,7 @@ def nutest-299792458-execute-before [items: list]: record -> record {
 def nutest-299792458-execute-after [items: list]: record -> nothing {
     let context = $in
     for item in $items {
-        $context | do $item.execute
-    }
-}
-
-def nutest-299792458-fail [error: record] {
+        $context | do $item.executedef nutest-299792458-fail [error: record] -> nothing record] {
     nutest-299792458-emit result FAIL
     # Exclude raw so it can be converted to Nuon
     # Exclude debug as it reduces noise in the output
@@ -173,8 +158,7 @@ def nutest-299792458-fail [error: record] {
 # Keep a reference to the internal print command
 alias nutest-299792458-print = print
 
-# Override the print command to provide context for output
-export def print [...rest: any] {
+# Override the print command to provide export def print [...rest: any] -> nothingnt [...rest: any] {
     # Capture the stream type to allow downstream rendering to differentiate between the two
     let stream = if $stderr { "error" } else { "output" }
 
@@ -188,10 +172,7 @@ export def print [...rest: any] {
     # Encode to base64 to avoid newlines in any strings breaking the line-based protocol
     let encoded = $output | to nuon --raw | encode base64
 
-    nutest-299792458-emit output $encoded
-}
-
-def nutest-299792458-emit [type: string, payload: any = null] {
+    nutest-299792def nutest-299792458-emit [type: string, payload: any = null] -> nothingring, payload: any = null] {
     let event = {
         timestamp: (date now | format date %+)
         suite: $env.NU_TEST_SUITE_NAME

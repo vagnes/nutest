@@ -11,7 +11,7 @@ def setup []: any -> record<temp: string> {
 }
 
 @after-each
-def cleanup [] {
+def cleanup [] -> any
     let context = $in
     rm --recursive $context.temp
 }

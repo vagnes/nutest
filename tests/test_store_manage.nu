@@ -16,7 +16,7 @@ def create-test-dir []: record -> record {
 }
 
 @after-each
-def cleanup-test-dir [] {
+def cleanup-test-dir [] -> any
     let context = $in
     rm --recursive $context.temp
 }
